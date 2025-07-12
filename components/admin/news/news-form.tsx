@@ -43,6 +43,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
     isFeatured: false,
     isTrending: false,
     tags: [] as string[],
+    status: 'Draft',
   });
 
   const [tagInput, setTagInput] = useState('');
@@ -65,6 +66,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         isFeatured: news.isFeatured || false,
         isTrending: news.isTrending || false,
         tags: news.tags || [],
+        status: news.status || 'Draft',
       });
       setTagInput(news.tags?.join(', ') || '');
       setImagePreview(news.imageUrl || '');
@@ -83,6 +85,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         isFeatured: false,
         isTrending: false,
         tags: [],
+        status: 'Draft',
       });
       setTagInput('');
       setImagePreview('');

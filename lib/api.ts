@@ -116,6 +116,7 @@ class ApiService {
     if (newsData.author) formData.append('author', newsData.author);
     formData.append('isFeatured', (newsData.isFeatured || false).toString());
     formData.append('isTrending', (newsData.isTrending || false).toString());
+    formData.append('status', newsData.status || 'Draft');
     
     // Add optional fields
     if (newsData.summary) formData.append('summary', newsData.summary);
@@ -149,6 +150,7 @@ class ApiService {
     if (newsData.expectedAttendees) formData.append('expectedAttendees', newsData.expectedAttendees);
     if (newsData.isFeatured !== undefined) formData.append('isFeatured', newsData.isFeatured.toString());
     if (newsData.isTrending !== undefined) formData.append('isTrending', newsData.isTrending.toString());
+    if (newsData.status) formData.append('status', newsData.status);
     if (newsData.tags && newsData.tags.length > 0) {
       formData.append('tags', JSON.stringify(newsData.tags));
     }
