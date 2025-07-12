@@ -80,7 +80,7 @@ export default function NewsTable({ news, onEdit, onDelete, onPublish }: NewsTab
               <TableHead>Category</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Views</TableHead>
-              <TableHead>Published</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -118,7 +118,11 @@ export default function NewsTable({ news, onEdit, onDelete, onPublish }: NewsTab
                     <span>{item.viewCount.toLocaleString()}</span>
                   </div>
                 </TableCell>
-                <TableCell>{formatDate(item.publishedDate)}</TableCell>
+                <TableCell>
+                  <Badge variant={item.status === 'Published' ? 'default' : 'secondary'}>
+                    {item.status}
+                  </Badge>
+                </TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
