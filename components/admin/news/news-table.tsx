@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { News } from '@/types';
+import { NewsArticle, getImageUrl } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -19,12 +19,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Search, Edit, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Search, Edit, Trash2, Eye, Star, TrendingUp } from 'lucide-react';
 
 interface NewsTableProps {
-  news: News[];
-  onEdit: (news: News) => void;
-  onDelete: (id: string) => void;
+  news: NewsArticle[];
+  onEdit: (news: NewsArticle) => void;
+  onDelete: (id: number) => void;
 }
 
 export default function NewsTable({ news, onEdit, onDelete }: NewsTableProps) {
@@ -32,15 +32,27 @@ export default function NewsTable({ news, onEdit, onDelete }: NewsTableProps) {
 
   const filteredNews = news.filter(item =>
     item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.author.toLowerCase().includes(searchTerm.toLowerCase())
+    item.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Unknown';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
+  };
+
+  const getStatusBadge = (article: NewsArticle) => {
+    if (article.isFeatured) {
+      return <Badge className="bg-blue-500"><Star className="w-3 h-3 mr-1" />Featured</Badge>;
+    }
+    if (article.isTrending) {
+      return <Badge className="bg-green-500"><TrendingUp className="w-3 h-3 mr-1" />Trending</Badge>;
+    }
+    return <Badge variant={article.status === 'Published' ? 'default' : 'secondary'}>{article.status}</Badge>;
   };
 
   return (
@@ -63,7 +75,9 @@ export default function NewsTable({ news, onEdit, onDelete }: NewsTableProps) {
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead>Author</TableHead>
+              <TableHead>Category</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Views</TableHead>
               <TableHead>Published</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
@@ -71,14 +85,38 @@ export default function NewsTable({ news, onEdit, onDelete }: NewsTableProps) {
           <TableBody>
             {filteredNews.map((item) => (
               <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.title}</TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-3">
+                    {item.imageUrl && (
+                      <img 
+                        src={getImageUrl(item.imageUrl, 'news')} 
+                        alt={item.title}
+                        className="w-10 h-10 rounded object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium line-clamp-1">{item.title}</p>
+                      {item.summary && (
+                        <p className="text-sm text-muted-foreground line-clamp-1">{item.summary}</p>
+                      )}
+                    </div>
+                  </div>
+                </TableCell>
                 <TableCell>{item.author}</TableCell>
                 <TableCell>
-                  <Badge variant={item.status === 'published' ? 'default' : 'secondary'}>
-                    {item.status}
-                  </Badge>
+                  <Badge variant="outline">{item.category}</Badge>
                 </TableCell>
-                <TableCell>{formatDate(item.publishedAt)}</TableCell>
+                <TableCell>{getStatusBadge(item)}</TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-1">
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <span>{item.viewCount.toLocaleString()}</span>
+                  </div>
+                </TableCell>
+                <TableCell>{formatDate(item.publishedDate)}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -103,6 +141,13 @@ export default function NewsTable({ news, onEdit, onDelete }: NewsTableProps) {
                 </TableCell>
               </TableRow>
             ))}
+            {filteredNews.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8">
+                  <p className="text-muted-foreground">No news articles found</p>
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

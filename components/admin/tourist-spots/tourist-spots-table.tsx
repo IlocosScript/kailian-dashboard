@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { TouristSpot } from '@/types';
+import { TouristSpot, getImageUrl } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -19,12 +19,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Search, Edit, Trash2, Star } from 'lucide-react';
+import { MoreHorizontal, Search, Edit, Trash2, Star, Eye, MapPin } from 'lucide-react';
 
 interface TouristSpotsTableProps {
   touristSpots: TouristSpot[];
   onEdit: (spot: TouristSpot) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: number) => void;
 }
 
 export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: TouristSpotsTableProps) {
@@ -33,7 +33,7 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: To
   const filteredSpots = touristSpots.filter(spot =>
     spot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     spot.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    spot.category.toLowerCase().includes(searchTerm.toLowerCase())
+    spot.address.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatDate = (dateString: string) => {
@@ -71,8 +71,9 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: To
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Location</TableHead>
-              <TableHead>Category</TableHead>
               <TableHead>Rating</TableHead>
+              <TableHead>Views</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Created</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
@@ -80,16 +81,51 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: To
           <TableBody>
             {filteredSpots.map((spot) => (
               <TableRow key={spot.id}>
-                <TableCell className="font-medium">{spot.name}</TableCell>
-                <TableCell>{spot.location}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">{spot.category}</Badge>
+                  <div className="flex items-center space-x-3">
+                    {spot.imageUrl && (
+                      <img 
+                        src={getImageUrl(spot.imageUrl, 'tourist-spots')} 
+                        alt={spot.name}
+                        className="w-10 h-10 rounded object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium line-clamp-1">{spot.name}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-1">{spot.description}</p>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-1">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm">{spot.location}</p>
+                      {spot.address && (
+                        <p className="text-xs text-muted-foreground line-clamp-1">{spot.address}</p>
+                      )}
+                    </div>
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className={`flex items-center space-x-1 ${getRatingColor(spot.rating)}`}>
                     <Star className="h-4 w-4 fill-current" />
                     <span className="font-medium">{spot.rating}</span>
                   </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-1">
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <span>{spot.viewCount.toLocaleString()}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={spot.isActive ? 'default' : 'secondary'}>
+                    {spot.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
                 </TableCell>
                 <TableCell>{formatDate(spot.createdAt)}</TableCell>
                 <TableCell>
@@ -116,6 +152,13 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: To
                 </TableCell>
               </TableRow>
             ))}
+            {filteredSpots.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8">
+                  <p className="text-muted-foreground">No tourist spots found</p>
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

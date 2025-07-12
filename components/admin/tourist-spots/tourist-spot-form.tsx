@@ -1,18 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { TouristSpot } from '@/types';
+import { useState, useEffect } from 'react';
+import { TouristSpot } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -24,58 +18,98 @@ interface TouristSpotFormProps {
   touristSpot?: TouristSpot | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (spot: Omit<TouristSpot, 'id'>) => void;
+  onSubmit: (spot: Partial<TouristSpot>) => void;
 }
-
-const categories = [
-  'Historical',
-  'Beach',
-  'Nature',
-  'Adventure',
-  'Cultural',
-  'Religious',
-  'Entertainment',
-  'Shopping',
-];
 
 export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSubmit }: TouristSpotFormProps) {
   const [formData, setFormData] = useState({
-    name: touristSpot?.name || '',
-    description: touristSpot?.description || '',
-    location: touristSpot?.location || '',
-    category: touristSpot?.category || '',
-    rating: touristSpot?.rating || 0,
-    imageUrl: touristSpot?.imageUrl || '',
+    name: '',
+    description: '',
+    location: '',
+    address: '',
+    rating: 0,
+    imageUrl: '',
+    coordinates: '',
+    openingHours: '',
+    entryFee: '',
+    travelTime: '',
+    isActive: true,
+    highlights: [] as string[],
   });
+
+  const [highlightsInput, setHighlightsInput] = useState('');
+
+  useEffect(() => {
+    if (touristSpot) {
+      setFormData({
+        name: touristSpot.name || '',
+        description: touristSpot.description || '',
+        location: touristSpot.location || '',
+        address: touristSpot.address || '',
+        rating: touristSpot.rating || 0,
+        imageUrl: touristSpot.imageUrl || '',
+        coordinates: touristSpot.coordinates || '',
+        openingHours: touristSpot.openingHours || '',
+        entryFee: touristSpot.entryFee || '',
+        travelTime: touristSpot.travelTime || '',
+        isActive: touristSpot.isActive !== false,
+        highlights: touristSpot.highlights || [],
+      });
+      setHighlightsInput(touristSpot.highlights?.join(', ') || '');
+    } else {
+      setFormData({
+        name: '',
+        description: '',
+        location: '',
+        address: '',
+        rating: 0,
+        imageUrl: '',
+        coordinates: '',
+        openingHours: '',
+        entryFee: '',
+        travelTime: '',
+        isActive: true,
+        highlights: [],
+      });
+      setHighlightsInput('');
+    }
+  }, [touristSpot, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const highlights = highlightsInput
+      .split(',')
+      .map(highlight => highlight.trim())
+      .filter(highlight => highlight.length > 0);
+
     onSubmit({
       ...formData,
-      coordinates: touristSpot?.coordinates,
-      createdAt: touristSpot?.createdAt || new Date().toISOString(),
+      highlights,
     });
+    
     onOpenChange(false);
-    setFormData({
-      name: '',
-      description: '',
-      location: '',
-      category: '',
-      rating: 0,
-      imageUrl: '',
-    });
+  };
+
+  const handleHighlightsInputChange = (value: string) => {
+    setHighlightsInput(value);
+    const highlights = value
+      .split(',')
+      .map(highlight => highlight.trim())
+      .filter(highlight => highlight.length > 0);
+    setFormData({ ...formData, highlights });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{touristSpot ? 'Edit Tourist Spot' : 'Add Tourist Spot'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -85,7 +119,7 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">Location *</Label>
               <Input
                 id="location"
                 value={formData.location}
@@ -95,28 +129,18 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
             </div>
           </div>
           
+          <div className="space-y-2">
+            <Label htmlFor="address">Address</Label>
+            <Input
+              id="address"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="rating">Rating</Label>
+              <Label htmlFor="rating">Rating (0-5)</Label>
               <Input
                 id="rating"
                 type="number"
@@ -124,24 +148,88 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
                 max="5"
                 step="0.1"
                 value={formData.rating}
-                onChange={(e) => setFormData({ ...formData, rating: parseFloat(e.target.value) })}
-                required
+                onChange={(e) => setFormData({ ...formData, rating: parseFloat(e.target.value) || 0 })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="coordinates">Coordinates</Label>
+              <Input
+                id="coordinates"
+                value={formData.coordinates}
+                onChange={(e) => setFormData({ ...formData, coordinates: e.target.value })}
+                placeholder="14.5995,120.9842"
               />
             </div>
           </div>
-          
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="openingHours">Opening Hours</Label>
+              <Input
+                id="openingHours"
+                value={formData.openingHours}
+                onChange={(e) => setFormData({ ...formData, openingHours: e.target.value })}
+                placeholder="6:00 AM - 10:00 PM"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="entryFee">Entry Fee</Label>
+              <Input
+                id="entryFee"
+                value={formData.entryFee}
+                onChange={(e) => setFormData({ ...formData, entryFee: e.target.value })}
+                placeholder="Free or ₱50"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="travelTime">Travel Time</Label>
+              <Input
+                id="travelTime"
+                value={formData.travelTime}
+                onChange={(e) => setFormData({ ...formData, travelTime: e.target.value })}
+                placeholder="15 minutes from city center"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="imageUrl">Image URL</Label>
+              <Input
+                id="imageUrl"
+                value={formData.imageUrl}
+                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="imageUrl">Image URL</Label>
+            <Label htmlFor="highlights">Highlights (comma-separated)</Label>
             <Input
-              id="imageUrl"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              placeholder="https://example.com/image.jpg"
+              id="highlights"
+              value={highlightsInput}
+              onChange={(e) => handleHighlightsInputChange(e.target.value)}
+              placeholder="Walking trails, Playground, Picnic areas"
             />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isActive"
+              checked={formData.isActive}
+              onCheckedChange={(checked) => 
+                setFormData({ ...formData, isActive: checked as boolean })
+              }
+            />
+            <Label htmlFor="isActive">Active (visible to public)</Label>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Description *</Label>
             <Textarea
               id="description"
               value={formData.description}
@@ -151,12 +239,12 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
             />
           </div>
           
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit">
-              {touristSpot ? 'Update' : 'Create'}
+              {touristSpot ? 'Update Spot' : 'Create Spot'}
             </Button>
           </div>
         </form>

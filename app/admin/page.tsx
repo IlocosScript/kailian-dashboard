@@ -1,29 +1,107 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Newspaper, MapPin, Users, TrendingUp } from 'lucide-react';
+import { apiService, NewsArticle, TouristSpot, getImageUrl } from '@/lib/api';
 
 export default function AdminDashboard() {
-  const stats = [
+  const [stats, setStats] = useState({
+    totalNews: 0,
+    totalTouristSpots: 0,
+    monthlyVisitors: 0,
+    engagementRate: 0,
+  });
+  const [recentNews, setRecentNews] = useState<NewsArticle[]>([]);
+  const [popularSpots, setPopularSpots] = useState<TouristSpot[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch news and tourist spots data
+        const [newsResponse, spotsResponse, featuredNewsResponse] = await Promise.all([
+          apiService.getNews({ pageSize: 5 }),
+          apiService.getTouristSpots({ pageSize: 5, isActive: true }),
+          apiService.getFeaturedNews(),
+        ]);
+
+        if (newsResponse.success) {
+          setRecentNews(newsResponse.data);
+          setStats(prev => ({ ...prev, totalNews: newsResponse.data.length }));
+        }
+
+        if (spotsResponse.success) {
+          // Sort by view count for popular spots
+          const sortedSpots = spotsResponse.data.sort((a, b) => b.viewCount - a.viewCount);
+          setPopularSpots(sortedSpots);
+          setStats(prev => ({ ...prev, totalTouristSpots: spotsResponse.data.length }));
+        }
+
+        // Calculate total visitors from tourist spots
+        if (spotsResponse.success) {
+          const totalVisitors = spotsResponse.data.reduce((sum, spot) => sum + spot.viewCount, 0);
+          setStats(prev => ({ 
+            ...prev, 
+            monthlyVisitors: totalVisitors,
+            engagementRate: Math.round((featuredNewsResponse.data?.length || 0) / Math.max(newsResponse.data.length, 1) * 100)
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Unknown date';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  const getStatusColor = (article: NewsArticle) => {
+    if (article.isFeatured) return 'bg-blue-500';
+    if (article.isTrending) return 'bg-green-500';
+    if (article.status === 'Published') return 'bg-green-500';
+    return 'bg-yellow-500';
+  };
+
+  const getStatusLabel = (article: NewsArticle) => {
+    if (article.isFeatured) return 'Featured';
+    if (article.isTrending) return 'Trending';
+    return article.status;
+  };
+
+  const dashboardStats = [
     {
       title: 'Total News',
-      value: '24',
+      value: loading ? '...' : stats.totalNews.toString(),
       change: '+12%',
       icon: Newspaper,
     },
     {
       title: 'Tourist Spots',
-      value: '18',
+      value: loading ? '...' : stats.totalTouristSpots.toString(),
       change: '+3%',
       icon: MapPin,
     },
     {
-      title: 'Monthly Visitors',
-      value: '12.5K',
+      title: 'Total Views',
+      value: loading ? '...' : `${(stats.monthlyVisitors / 1000).toFixed(1)}K`,
       change: '+23%',
       icon: Users,
     },
     {
-      title: 'Engagement Rate',
-      value: '84%',
+      title: 'Featured Rate',
+      value: loading ? '...' : `${stats.engagementRate}%`,
       change: '+8%',
       icon: TrendingUp,
     },
@@ -39,7 +117,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {dashboardStats.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
@@ -61,29 +139,36 @@ export default function AdminDashboard() {
             <CardTitle>Recent News</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="h-2 w-2 rounded-full bg-blue-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">New Tourism Campaign Launches</p>
-                  <p className="text-xs text-muted-foreground">Published 2 hours ago</p>
-                </div>
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center space-x-3">
+                    <div className="h-2 w-2 rounded-full bg-gray-300 animate-pulse" />
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-300 rounded animate-pulse mb-1" />
+                      <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3" />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="h-2 w-2 rounded-full bg-green-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Local Festival Dates Announced</p>
-                  <p className="text-xs text-muted-foreground">Published 1 day ago</p>
-                </div>
+            ) : (
+              <div className="space-y-4">
+                {recentNews.slice(0, 3).map((article) => (
+                  <div key={article.id} className="flex items-center space-x-3">
+                    <div className={`h-2 w-2 rounded-full ${getStatusColor(article)}`} />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium line-clamp-1">{article.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {getStatusLabel(article)} • {formatDate(article.publishedDate)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {recentNews.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No news articles found</p>
+                )}
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="h-2 w-2 rounded-full bg-yellow-500" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">New Walking Trail Opens</p>
-                  <p className="text-xs text-muted-foreground">Draft</p>
-                </div>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -92,38 +177,40 @@ export default function AdminDashboard() {
             <CardTitle>Popular Tourist Spots</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Sunset Beach</p>
-                  <p className="text-xs text-muted-foreground">Coastal Area</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium">4.8★</p>
-                  <p className="text-xs text-muted-foreground">1,234 visits</p>
-                </div>
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-300 rounded animate-pulse mb-1" />
+                      <div className="h-3 bg-gray-200 rounded animate-pulse w-1/2" />
+                    </div>
+                    <div className="text-right">
+                      <div className="h-4 bg-gray-300 rounded animate-pulse mb-1 w-12" />
+                      <div className="h-3 bg-gray-200 rounded animate-pulse w-16" />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Historic Downtown Square</p>
-                  <p className="text-xs text-muted-foreground">Downtown District</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium">4.5★</p>
-                  <p className="text-xs text-muted-foreground">987 visits</p>
-                </div>
+            ) : (
+              <div className="space-y-4">
+                {popularSpots.slice(0, 3).map((spot) => (
+                  <div key={spot.id} className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium line-clamp-1">{spot.name}</p>
+                      <p className="text-xs text-muted-foreground">{spot.location}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium">{spot.rating}★</p>
+                      <p className="text-xs text-muted-foreground">{spot.viewCount.toLocaleString()} views</p>
+                    </div>
+                  </div>
+                ))}
+                {popularSpots.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No tourist spots found</p>
+                )}
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">Mountain View Trail</p>
-                  <p className="text-xs text-muted-foreground">Mountain Region</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium">4.3★</p>
-                  <p className="text-xs text-muted-foreground">756 visits</p>
-                </div>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
