@@ -49,42 +49,56 @@ export default function NewsPage() {
   };
 
   const handleDeleteNews = (id: number) => {
-    // Note: This is client-side only since the API doesn't support DELETE
-    setNews(news.filter(item => item.id !== id));
+    const deleteNews = async () => {
+      try {
+        const response = await apiService.deleteNews(id);
+        if (response.success) {
+          setNews(news.filter(item => item.id !== id));
+        } else {
+          setError(response.message || 'Failed to delete news');
+        }
+      } catch (err) {
+        setError('Failed to delete news');
+        console.error('Error deleting news:', err);
+      }
+    };
+    
+    if (confirm('Are you sure you want to delete this news article?')) {
+      deleteNews();
+    }
   };
 
-  const handleSubmitNews = (newsData: Partial<NewsArticle>) => {
-    // Note: This is client-side only since the API doesn't support POST/PUT
-    if (selectedNews) {
-      // Update existing news
-      setNews(news.map(item => 
-        item.id === selectedNews.id 
-          ? { ...selectedNews, ...newsData }
-          : item
-      ));
-    } else {
-      // Add new news (client-side only)
-      const newNews: NewsArticle = {
-        id: Date.now(),
-        title: newsData.title || '',
-        summary: newsData.summary,
-        fullContent: newsData.fullContent,
-        imageUrl: newsData.imageUrl,
-        publishedDate: new Date().toISOString().split('T')[0],
-        publishedTime: new Date().toTimeString().split(' ')[0],
-        location: newsData.location || '',
-        expectedAttendees: newsData.expectedAttendees,
-        category: newsData.category || 'Local',
-        author: newsData.author || '',
-        tags: newsData.tags || [],
-        isFeatured: newsData.isFeatured || false,
-        isTrending: newsData.isTrending || false,
-        viewCount: 0,
-        status: newsData.status || 'Published',
-      };
-      setNews([newNews, ...news]);
+  const handleSubmitNews = async (newsData: Partial<NewsArticle>, imageFile?: File) => {
+    try {
+      let response;
+      
+      if (selectedNews) {
+        // Update existing news
+        response = await apiService.updateNews(selectedNews.id, newsData, imageFile);
+        if (response.success) {
+          setNews(news.map(item => 
+            item.id === selectedNews.id 
+              ? response.data
+              : item
+          ));
+        }
+      } else {
+        // Create new news
+        response = await apiService.createNews(newsData, imageFile);
+        if (response.success) {
+          setNews([response.data, ...news]);
+        }
+      }
+      
+      if (response.success) {
+        setFormOpen(false);
+      } else {
+        setError(response.message || 'Failed to save news');
+      }
+    } catch (err) {
+      setError('Failed to save news');
+      console.error('Error saving news:', err);
     }
-    setFormOpen(false);
   };
 
   if (error) {

@@ -34,6 +34,51 @@ class ApiService {
     }
   }
 
+  private async requestWithFormData<T>(endpoint: string, method: string, formData: FormData): Promise<ApiResponse<T>> {
+    try {
+      console.log(`Making ${method} request to: ${BASE_URL}${endpoint}`);
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method,
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        console.error(`HTTP error! status: ${response.status}`, errorData);
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(`API response:`, data);
+      return data;
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
+  }
+
+  private async deleteRequest<T>(endpoint: string): Promise<ApiResponse<T>> {
+    try {
+      console.log(`Making DELETE request to: ${BASE_URL}${endpoint}`);
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        console.error(`HTTP error! status: ${response.status}`, errorData);
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(`API response:`, data);
+      return data;
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
+  }
+
   // News API methods
   async getNews(params?: {
     page?: number;
@@ -58,6 +103,66 @@ class ApiService {
 
   async getNewsById(id: string): Promise<ApiResponse<NewsArticle>> {
     return this.request<NewsArticle>(`/api/news/${id}`);
+  }
+
+  async createNews(newsData: Partial<NewsArticle>, imageFile?: File): Promise<ApiResponse<NewsArticle>> {
+    const formData = new FormData();
+    
+    // Add required fields
+    if (newsData.title) formData.append('title', newsData.title);
+    if (newsData.fullContent) formData.append('fullContent', newsData.fullContent);
+    if (newsData.location) formData.append('location', newsData.location);
+    if (newsData.category) formData.append('category', newsData.category);
+    if (newsData.author) formData.append('author', newsData.author);
+    formData.append('isFeatured', (newsData.isFeatured || false).toString());
+    formData.append('isTrending', (newsData.isTrending || false).toString());
+    
+    // Add optional fields
+    if (newsData.summary) formData.append('summary', newsData.summary);
+    if (newsData.publishedDate) formData.append('publishedDate', newsData.publishedDate);
+    if (newsData.publishedTime) formData.append('publishedTime', newsData.publishedTime);
+    if (newsData.expectedAttendees) formData.append('expectedAttendees', newsData.expectedAttendees);
+    if (newsData.tags && newsData.tags.length > 0) {
+      formData.append('tags', JSON.stringify(newsData.tags));
+    }
+    
+    // Add image file if provided
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+    
+    return this.requestWithFormData<NewsArticle>('/api/news/with-image', 'POST', formData);
+  }
+
+  async updateNews(id: number, newsData: Partial<NewsArticle>, imageFile?: File): Promise<ApiResponse<NewsArticle>> {
+    const formData = new FormData();
+    
+    // Add all fields that are provided (all optional for updates)
+    if (newsData.title) formData.append('title', newsData.title);
+    if (newsData.summary) formData.append('summary', newsData.summary);
+    if (newsData.fullContent) formData.append('fullContent', newsData.fullContent);
+    if (newsData.location) formData.append('location', newsData.location);
+    if (newsData.category) formData.append('category', newsData.category);
+    if (newsData.author) formData.append('author', newsData.author);
+    if (newsData.publishedDate) formData.append('publishedDate', newsData.publishedDate);
+    if (newsData.publishedTime) formData.append('publishedTime', newsData.publishedTime);
+    if (newsData.expectedAttendees) formData.append('expectedAttendees', newsData.expectedAttendees);
+    if (newsData.isFeatured !== undefined) formData.append('isFeatured', newsData.isFeatured.toString());
+    if (newsData.isTrending !== undefined) formData.append('isTrending', newsData.isTrending.toString());
+    if (newsData.tags && newsData.tags.length > 0) {
+      formData.append('tags', JSON.stringify(newsData.tags));
+    }
+    
+    // Add image file if provided
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+    
+    return this.requestWithFormData<NewsArticle>(`/api/news/${id}/with-image`, 'PUT', formData);
+  }
+
+  async deleteNews(id: number): Promise<ApiResponse<{}>> {
+    return this.deleteRequest<{}>(`/api/news/${id}`);
   }
 
   async getFeaturedNews(): Promise<ApiResponse<NewsArticle[]>> {
@@ -152,16 +257,16 @@ export const getImageUrl = (imageUrl?: string, type: 'news' | 'tourist-spots' = 
 
 // News categories from API documentation
 export const NEWS_CATEGORIES = [
-  'Local',
-  'National',
-  'International',
-  'Sports',
-  'Entertainment',
-  'Technology',
-  'Business',
+  'Festival',
+  'Infrastructure', 
   'Health',
   'Education',
   'Environment',
+  'Culture',
+  'Technology',
+  'Sports',
+  'Government',
+  'Emergency',
 ] as const;
 
 export type NewsCategory = typeof NEWS_CATEGORIES[number];

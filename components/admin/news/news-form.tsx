@@ -20,12 +20,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Upload, X } from 'lucide-react';
 
 interface NewsFormProps {
   news?: NewsArticle | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (news: Partial<NewsArticle>) => void;
+  onSubmit: (news: Partial<NewsArticle>, imageFile?: File) => void;
 }
 
 export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFormProps) {
@@ -34,17 +35,20 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
     summary: '',
     fullContent: '',
     author: '',
-    category: 'Local',
+    category: 'Festival',
     location: '',
     expectedAttendees: '',
-    imageUrl: '',
+    publishedDate: '',
+    publishedTime: '',
     isFeatured: false,
     isTrending: false,
-    status: 'Published',
     tags: [] as string[],
   });
 
   const [tagInput, setTagInput] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (news) {
@@ -53,49 +57,54 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         summary: news.summary || '',
         fullContent: news.fullContent || '',
         author: news.author || '',
-        category: news.category || 'Local',
+        category: news.category || 'Festival',
         location: news.location || '',
         expectedAttendees: news.expectedAttendees || '',
-        imageUrl: news.imageUrl || '',
+        publishedDate: news.publishedDate || '',
+        publishedTime: news.publishedTime || '',
         isFeatured: news.isFeatured || false,
         isTrending: news.isTrending || false,
-        status: news.status || 'Published',
         tags: news.tags || [],
       });
       setTagInput(news.tags?.join(', ') || '');
+      setImagePreview(news.imageUrl || '');
+      setImageFile(null);
     } else {
       setFormData({
         title: '',
         summary: '',
         fullContent: '',
         author: '',
-        category: 'Local',
+        category: 'Festival',
         location: '',
         expectedAttendees: '',
-        imageUrl: '',
+        publishedDate: '',
+        publishedTime: '',
         isFeatured: false,
         isTrending: false,
-        status: 'Published',
         tags: [],
       });
       setTagInput('');
+      setImagePreview('');
+      setImageFile(null);
     }
   }, [news, open]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
     const tags = tagInput
       .split(',')
       .map(tag => tag.trim())
       .filter(tag => tag.length > 0);
 
-    onSubmit({
+    await onSubmit({
       ...formData,
       tags,
-    });
+    }, imageFile || undefined);
     
-    onOpenChange(false);
+    setIsSubmitting(false);
   };
 
   const handleTagInputChange = (value: string) => {
@@ -105,6 +114,23 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
       .map(tag => tag.trim())
       .filter(tag => tag.length > 0);
     setFormData({ ...formData, tags });
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview('');
   };
 
   return (
@@ -132,6 +158,28 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                 value={formData.author}
                 onChange={(e) => setFormData({ ...formData, author: e.target.value })}
                 required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="publishedDate">Published Date</Label>
+              <Input
+                id="publishedDate"
+                type="date"
+                value={formData.publishedDate}
+                onChange={(e) => setFormData({ ...formData, publishedDate: e.target.value })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="publishedTime">Published Time</Label>
+              <Input
+                id="publishedTime"
+                type="time"
+                value={formData.publishedTime}
+                onChange={(e) => setFormData({ ...formData, publishedTime: e.target.value })}
               />
             </div>
           </div>
@@ -178,40 +226,55 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Published">Published</SelectItem>
-                  <SelectItem value="Draft">Draft</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="tags">Tags (comma-separated)</Label>
+              <Input
+                id="tags"
+                value={tagInput}
+                onChange={(e) => handleTagInputChange(e.target.value)}
+                placeholder="tourism, local, event"
+              />
             </div>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="imageUrl">Image URL</Label>
-            <Input
-              id="imageUrl"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="tags">Tags (comma-separated)</Label>
-            <Input
-              id="tags"
-              value={tagInput}
-              onChange={(e) => handleTagInputChange(e.target.value)}
-              placeholder="tourism, local, event"
-            />
+            <Label htmlFor="image">Image Upload</Label>
+            <div className="space-y-2">
+              {imagePreview && (
+                <div className="relative inline-block">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="w-32 h-32 object-cover rounded border"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                    onClick={removeImage}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+              <div className="flex items-center space-x-2">
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById('image')?.click()}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {imagePreview ? 'Change Image' : 'Upload Image'}
+                </Button>
+              </div>
+            </div>
           </div>
 
           <div className="flex space-x-6">
@@ -250,13 +313,14 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="fullContent">Full Content</Label>
+            <Label htmlFor="fullContent">Full Content *</Label>
             <Textarea
               id="fullContent"
               value={formData.fullContent}
               onChange={(e) => setFormData({ ...formData, fullContent: e.target.value })}
               rows={8}
               placeholder="Full article content..."
+              required
             />
           </div>
           
@@ -264,7 +328,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">
+            <Button type="submit" disabled={isSubmitting}>
               {news ? 'Update Article' : 'Create Article'}
             </Button>
           </div>
