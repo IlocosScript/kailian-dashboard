@@ -51,7 +51,7 @@ export default function Sidebar() {
       <ScrollArea className="flex-1">
         <div className="space-y-2 p-2">
           {navigation.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href));
             return (
               <Link key={item.name} href={item.href}>
                 <Button
