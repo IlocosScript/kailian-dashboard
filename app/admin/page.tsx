@@ -15,22 +15,44 @@ export default function AdminDashboard() {
   const [recentNews, setRecentNews] = useState<NewsArticle[]>([]);
   const [popularSpots, setPopularSpots] = useState<TouristSpot[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
+        console.log('Fetching dashboard data...');
+        
+        // Test API connectivity first
+        try {
+          const testResponse = await fetch('https://alisto.gregdoesdev.xyz/api/news?pageSize=1');
+          console.log('Test API response status:', testResponse.status);
+          if (!testResponse.ok) {
+            throw new Error(`API test failed with status: ${testResponse.status}`);
+          }
+        } catch (testError) {
+          console.error('API connectivity test failed:', testError);
+          setError('Cannot connect to the API server. Please check your internet connection.');
+          setLoading(false);
+          return;
+        }
         
         // Fetch news and tourist spots data
-        const [newsResponse, spotsResponse, featuredNewsResponse] = await Promise.all([
-          apiService.getNews({ pageSize: 5 }),
-          apiService.getTouristSpots({ pageSize: 5, isActive: true }),
-          apiService.getFeaturedNews(),
+        const [newsResponse, spotsResponse] = await Promise.all([
+          apiService.getNews({ pageSize: 10 }),
+          apiService.getTouristSpots({ pageSize: 10, isActive: true }),
         ]);
+
+        console.log('News response:', newsResponse);
+        console.log('Spots response:', spotsResponse);
 
         if (newsResponse.success) {
           setRecentNews(newsResponse.data);
           setStats(prev => ({ ...prev, totalNews: newsResponse.data.length }));
+        } else {
+          console.error('News API error:', newsResponse.message);
         }
 
         if (spotsResponse.success) {
@@ -38,19 +60,25 @@ export default function AdminDashboard() {
           const sortedSpots = spotsResponse.data.sort((a, b) => b.viewCount - a.viewCount);
           setPopularSpots(sortedSpots);
           setStats(prev => ({ ...prev, totalTouristSpots: spotsResponse.data.length }));
-        }
-
-        // Calculate total visitors from tourist spots
-        if (spotsResponse.success) {
+          
+          // Calculate total visitors from tourist spots
           const totalVisitors = spotsResponse.data.reduce((sum, spot) => sum + spot.viewCount, 0);
           setStats(prev => ({ 
             ...prev, 
             monthlyVisitors: totalVisitors,
-            engagementRate: Math.round((featuredNewsResponse.data?.length || 0) / Math.max(newsResponse.data.length, 1) * 100)
+            engagementRate: Math.round((newsResponse.data?.filter(n => n.isFeatured).length || 0) / Math.max(newsResponse.data?.length || 1, 1) * 100)
           }));
+        } else {
+          console.error('Tourist spots API error:', spotsResponse.message);
+        }
+
+        // If both failed, show error
+        if (!newsResponse.success && !spotsResponse.success) {
+          setError('Failed to load dashboard data');
         }
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
+        setError('Failed to connect to the API');
       } finally {
         setLoading(false);
       }
@@ -106,6 +134,33 @@ export default function AdminDashboard() {
       icon: TrendingUp,
     },
   ];
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome to your tourism management dashboard
+          </p>
+        </div>
+        <Card>
+          <CardContent className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <p className="text-lg font-medium text-destructive mb-2">Failed to load dashboard</p>
+              <p className="text-muted-foreground mb-4">{error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              >
+                Retry
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

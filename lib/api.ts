@@ -17,13 +17,16 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 class ApiService {
   private async request<T>(endpoint: string): Promise<ApiResponse<T>> {
     try {
+      console.log(`Making API request to: ${BASE_URL}${endpoint}`);
       const response = await fetch(`${BASE_URL}${endpoint}`);
       
       if (!response.ok) {
+        console.error(`HTTP error! status: ${response.status}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const data = await response.json();
+      console.log(`API response:`, data);
       return data;
     } catch (error) {
       console.error('API request failed:', error);
