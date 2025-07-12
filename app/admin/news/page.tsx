@@ -68,6 +68,25 @@ export default function NewsPage() {
     }
   };
 
+  const handlePublishNews = async (id: number) => {
+    try {
+      const response = await apiService.publishNews(id);
+      if (response.success) {
+        // Update the news item in the list with the new status
+        setNews(news.map(item => 
+          item.id === id 
+            ? { ...item, status: 'Published' }
+            : item
+        ));
+      } else {
+        setError(response.message || 'Failed to publish news');
+      }
+    } catch (err) {
+      setError('Failed to publish news');
+      console.error('Error publishing news:', err);
+    }
+  };
+
   const handleSubmitNews = async (newsData: Partial<NewsArticle>, imageFile?: File) => {
     try {
       let response;
@@ -175,6 +194,7 @@ export default function NewsPage() {
               news={news}
               onEdit={handleEditNews}
               onDelete={handleDeleteNews}
+              onPublish={handlePublishNews}
             />
           )}
         </CardContent>

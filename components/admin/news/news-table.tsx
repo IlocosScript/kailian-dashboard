@@ -20,14 +20,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Search, Edit, Trash2, Eye, Star, TrendingUp } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 interface NewsTableProps {
   news: NewsArticle[];
   onEdit: (news: NewsArticle) => void;
   onDelete: (id: number) => void;
+  onPublish: (id: number) => void;
 }
 
-export default function NewsTable({ news, onEdit, onDelete }: NewsTableProps) {
+export default function NewsTable({ news, onEdit, onDelete, onPublish }: NewsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredNews = news.filter(item =>
@@ -129,6 +131,12 @@ export default function NewsTable({ news, onEdit, onDelete }: NewsTableProps) {
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
+                      {item.status !== 'Published' && (
+                        <DropdownMenuItem onClick={() => onPublish(item.id)}>
+                          <Send className="mr-2 h-4 w-4" />
+                          Publish
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem 
                         onClick={() => onDelete(item.id)}
                         className="text-destructive"
