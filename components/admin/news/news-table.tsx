@@ -131,6 +131,10 @@ export default function NewsTable({ news, onEdit, onDelete, onPublish }: NewsTab
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => window.open(`/admin/news/${item.id}`, '_blank')}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        View
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onEdit(item)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
