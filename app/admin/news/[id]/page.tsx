@@ -133,7 +133,7 @@ export default function ViewNewsPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to News
         </Button>
-        <Button onClick={() => router.push(`/admin/news/${newsId}/edit`)}>
+        <Button onClick={() => router.push(`/admin/news?edit=${newsId}`)}>
           <Edit className="mr-2 h-4 w-4" />
           Edit Article
         </Button>
