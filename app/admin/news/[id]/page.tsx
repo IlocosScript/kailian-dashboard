@@ -29,6 +29,7 @@ export default function ViewNewsPage() {
   const params = useParams();
   const router = useRouter();
   const [news, setNews] = useState<NewsArticle | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
@@ -255,7 +256,11 @@ export default function ViewNewsPage() {
           )}
           <Button onClick={() => router.push(`/admin/news/${newsId}/edit`)}>
             <Edit className="mr-2 h-4 w-4" />
-            Edit Article
+            Edit Article (Page)
+          </Button>
+          <Button onClick={() => setEditModalOpen(true)} variant="outline">
+            <Edit className="mr-2 h-4 w-4" />
+            Edit Article (Modal)
           </Button>
         </div>
       </div>
@@ -379,6 +384,31 @@ export default function ViewNewsPage() {
         onConfirm={handleConfirmAction}
         loading={confirmModal.loading}
         {...getModalConfig()}
+      />
+
+      <NewsForm
+        news={news}
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        onSubmit={async (newsData, imageFile) => {
+          try {
+            const response = await apiService.updateNews(news.id, newsData, imageFile);
+            if (response.success) {
+              await fetchNews(); // Refresh the news data
+              setEditModalOpen(false);
+              showToast.success('News article updated successfully');
+            } else {
+              showToast.error('Failed to update news article', {
+                description: response.message || 'Please try again or contact support if the problem persists.',
+              });
+            }
+          } catch (err) {
+            showToast.error('Failed to update news article', {
+              description: 'Please try again or contact support if the problem persists.',
+            });
+            console.error('Error updating news:', err);
+          }
+        }}
       />
     </div>
   );
