@@ -5,7 +5,7 @@ export default function Home() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center space-y-6 p-8">
         <h1 className="text-4xl font-bold text-gray-900">
-          Tourism Management Dashboard
+          Kailyan Dashboard
         </h1>
         <p className="text-xl text-gray-600">
           Welcome to your admin panel

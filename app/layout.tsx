@@ -6,8 +6,8 @@ import { Toaster } from 'sonner';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Tourism Management Dashboard',
-  description: 'Admin dashboard for tourism management',
+  title: 'Kailyan Dashboard',
+  description: 'Admin dashboard for Kailyan',
 };
 
 export default function RootLayout({

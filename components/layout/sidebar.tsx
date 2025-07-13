@@ -45,7 +45,7 @@ export default function Sidebar() {
           <Menu className="h-4 w-4" />
         </Button>
         {!collapsed && (
-          <h2 className="text-lg font-semibold">Admin Dashboard</h2>
+          <h2 className="text-lg font-semibold">Kailyan Dashboard</h2>
         )}
       </div>
       <ScrollArea className="flex-1">
