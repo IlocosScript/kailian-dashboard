@@ -1,3 +1,30 @@
+  mockUsers,
+  mockAppointments,
+  mockIssueReports,
+  mockBusinessPermitRequests,
+  mockCivilRegistryRequests,
+  mockPublicProjects,
+  mockCityServices,
+  mockServiceCategories,
+  mockNotifications,
+  mockEmergencyHotlines,
+  mockFeedback,
+  mockDashboardStats,
+} from './mockData';
+import type {
+  User,
+  Appointment,
+  IssueReport,
+  BusinessPermitRequest,
+  CivilRegistryRequest,
+  PublicProject,
+  CityService,
+  ServiceCategory,
+  Notification,
+  EmergencyHotline,
+  Feedback,
+  DashboardStats,
+} from '@/types';
 const BASE_URL = 'https://alisto.gregdoesdev.xyz';
 
 export interface ApiResponse<T> {
@@ -285,6 +312,390 @@ class ApiService {
     return this.request<NewsArticle[]>('/api/news/trending');
   }
 
+  // Mock API methods for new data types (simulating API calls with mock data)
+  async getUsers(params?: {
+    page?: number;
+    pageSize?: number;
+    isActive?: boolean;
+  }): Promise<PaginatedResponse<User>> {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    let filteredUsers = [...mockUsers];
+    
+    if (params?.isActive !== undefined) {
+      filteredUsers = filteredUsers.filter(user => user.isActive === params.isActive);
+    }
+    
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+    
+    return {
+      success: true,
+      data: paginatedUsers,
+      message: 'Users retrieved successfully',
+      totalCount: filteredUsers.length,
+      totalPages: Math.ceil(filteredUsers.length / pageSize),
+      currentPage: page,
+    };
+  }
+
+  async getUserById(id: string): Promise<ApiResponse<User>> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const user = mockUsers.find(u => u.id === id);
+    
+    if (user) {
+      return {
+        success: true,
+        data: user,
+        message: 'User retrieved successfully',
+      };
+    } else {
+      return {
+        success: false,
+        data: {} as User,
+        message: 'User not found',
+      };
+    }
+  }
+
+  async getAppointments(params?: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+  }): Promise<PaginatedResponse<Appointment>> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    let filteredAppointments = [...mockAppointments];
+    
+    if (params?.status) {
+      filteredAppointments = filteredAppointments.filter(apt => apt.status === params.status);
+    }
+    
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedAppointments = filteredAppointments.slice(startIndex, endIndex);
+    
+    return {
+      success: true,
+      data: paginatedAppointments,
+      message: 'Appointments retrieved successfully',
+      totalCount: filteredAppointments.length,
+      totalPages: Math.ceil(filteredAppointments.length / pageSize),
+      currentPage: page,
+    };
+  }
+
+  async getAppointmentById(id: string): Promise<ApiResponse<Appointment>> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const appointment = mockAppointments.find(a => a.id === id);
+    
+    if (appointment) {
+      return {
+        success: true,
+        data: appointment,
+        message: 'Appointment retrieved successfully',
+      };
+    } else {
+      return {
+        success: false,
+        data: {} as Appointment,
+        message: 'Appointment not found',
+      };
+    }
+  }
+
+  async getIssueReports(params?: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+    category?: string;
+  }): Promise<PaginatedResponse<IssueReport>> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    let filteredReports = [...mockIssueReports];
+    
+    if (params?.status) {
+      filteredReports = filteredReports.filter(report => report.status === params.status);
+    }
+    
+    if (params?.category) {
+      filteredReports = filteredReports.filter(report => report.category === params.category);
+    }
+    
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedReports = filteredReports.slice(startIndex, endIndex);
+    
+    return {
+      success: true,
+      data: paginatedReports,
+      message: 'Issue reports retrieved successfully',
+      totalCount: filteredReports.length,
+      totalPages: Math.ceil(filteredReports.length / pageSize),
+      currentPage: page,
+    };
+  }
+
+  async getIssueReportById(id: string): Promise<ApiResponse<IssueReport>> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const report = mockIssueReports.find(r => r.id === id);
+    
+    if (report) {
+      return {
+        success: true,
+        data: report,
+        message: 'Issue report retrieved successfully',
+      };
+    } else {
+      return {
+        success: false,
+        data: {} as IssueReport,
+        message: 'Issue report not found',
+      };
+    }
+  }
+
+  async getBusinessPermitRequests(params?: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+  }): Promise<PaginatedResponse<BusinessPermitRequest>> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    let filteredRequests = [...mockBusinessPermitRequests];
+    
+    if (params?.status) {
+      filteredRequests = filteredRequests.filter(req => req.status === params.status);
+    }
+    
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
+    
+    return {
+      success: true,
+      data: paginatedRequests,
+      message: 'Business permit requests retrieved successfully',
+      totalCount: filteredRequests.length,
+      totalPages: Math.ceil(filteredRequests.length / pageSize),
+      currentPage: page,
+    };
+  }
+
+  async getCivilRegistryRequests(params?: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+  }): Promise<PaginatedResponse<CivilRegistryRequest>> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    let filteredRequests = [...mockCivilRegistryRequests];
+    
+    if (params?.status) {
+      filteredRequests = filteredRequests.filter(req => req.status === params.status);
+    }
+    
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
+    
+    return {
+      success: true,
+      data: paginatedRequests,
+      message: 'Civil registry requests retrieved successfully',
+      totalCount: filteredRequests.length,
+      totalPages: Math.ceil(filteredRequests.length / pageSize),
+      currentPage: page,
+    };
+  }
+
+  async getPublicProjects(params?: {
+    page?: number;
+    pageSize?: number;
+    status?: string;
+  }): Promise<PaginatedResponse<PublicProject>> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    let filteredProjects = [...mockPublicProjects];
+    
+    if (params?.status) {
+      filteredProjects = filteredProjects.filter(project => project.status === params.status);
+    }
+    
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedProjects = filteredProjects.slice(startIndex, endIndex);
+    
+    return {
+      success: true,
+      data: paginatedProjects,
+      message: 'Public projects retrieved successfully',
+      totalCount: filteredProjects.length,
+      totalPages: Math.ceil(filteredProjects.length / pageSize),
+      currentPage: page,
+    };
+  }
+
+  async getPublicProjectById(id: number): Promise<ApiResponse<PublicProject>> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const project = mockPublicProjects.find(p => p.id === id);
+    
+    if (project) {
+      return {
+        success: true,
+        data: project,
+        message: 'Public project retrieved successfully',
+      };
+    } else {
+      return {
+        success: false,
+        data: {} as PublicProject,
+        message: 'Public project not found',
+      };
+    }
+  }
+
+  async getCityServices(params?: {
+    page?: number;
+    pageSize?: number;
+    categoryId?: number;
+    isActive?: boolean;
+  }): Promise<PaginatedResponse<CityService>> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    let filteredServices = [...mockCityServices];
+    
+    if (params?.categoryId) {
+      filteredServices = filteredServices.filter(service => service.categoryId === params.categoryId);
+    }
+    
+    if (params?.isActive !== undefined) {
+      filteredServices = filteredServices.filter(service => service.isActive === params.isActive);
+    }
+    
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedServices = filteredServices.slice(startIndex, endIndex);
+    
+    return {
+      success: true,
+      data: paginatedServices,
+      message: 'City services retrieved successfully',
+      totalCount: filteredServices.length,
+      totalPages: Math.ceil(filteredServices.length / pageSize),
+      currentPage: page,
+    };
+  }
+
+  async getServiceCategories(): Promise<ApiResponse<ServiceCategory[]>> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    return {
+      success: true,
+      data: mockServiceCategories,
+      message: 'Service categories retrieved successfully',
+    };
+  }
+
+  async getNotifications(params?: {
+    page?: number;
+    pageSize?: number;
+    isRead?: boolean;
+  }): Promise<PaginatedResponse<Notification>> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    let filteredNotifications = [...mockNotifications];
+    
+    if (params?.isRead !== undefined) {
+      filteredNotifications = filteredNotifications.filter(notif => notif.isRead === params.isRead);
+    }
+    
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedNotifications = filteredNotifications.slice(startIndex, endIndex);
+    
+    return {
+      success: true,
+      data: paginatedNotifications,
+      message: 'Notifications retrieved successfully',
+      totalCount: filteredNotifications.length,
+      totalPages: Math.ceil(filteredNotifications.length / pageSize),
+      currentPage: page,
+    };
+  }
+
+  async getEmergencyHotlines(): Promise<ApiResponse<EmergencyHotline[]>> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    return {
+      success: true,
+      data: mockEmergencyHotlines,
+      message: 'Emergency hotlines retrieved successfully',
+    };
+  }
+
+  async getFeedback(params?: {
+    page?: number;
+    pageSize?: number;
+    type?: string;
+    status?: string;
+  }): Promise<PaginatedResponse<Feedback>> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    let filteredFeedback = [...mockFeedback];
+    
+    if (params?.type) {
+      filteredFeedback = filteredFeedback.filter(fb => fb.type === params.type);
+    }
+    
+    if (params?.status) {
+      filteredFeedback = filteredFeedback.filter(fb => fb.status === params.status);
+    }
+    
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedFeedback = filteredFeedback.slice(startIndex, endIndex);
+    
+    return {
+      success: true,
+      data: paginatedFeedback,
+      message: 'Feedback retrieved successfully',
+      totalCount: filteredFeedback.length,
+      totalPages: Math.ceil(filteredFeedback.length / pageSize),
+      currentPage: page,
+    };
+  }
+
+  async getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
+    await new Promise(resolve => setTimeout(resolve, 400));
+    
+    return {
+      success: true,
+      data: mockDashboardStats,
+      message: 'Dashboard statistics retrieved successfully',
+    };
+  }
+
   // Tourist Spots API methods
   async getTouristSpots(params?: {
     page?: number;
@@ -529,4 +940,5 @@ export const NEWS_CATEGORIES = [
   'Emergency',
 ] as const;
 
+import {
 export type NewsCategory = typeof NEWS_CATEGORIES[number];
