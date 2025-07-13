@@ -342,17 +342,17 @@ class ApiService {
     formData.append('name', spotData.name || '');
     formData.append('description', spotData.description || '');
     formData.append('location', spotData.location || '');
-    formData.append('address', newsData.address || '');
+    formData.append('address', spotData.address || '');
     formData.append('isActive', (spotData.isActive !== false).toString());
     
     // Add optional fields
-    if (newsData.rating !== undefined) formData.append('rating', newsData.rating.toString());
-    formData.append('coordinates', newsData.coordinates || '');
-    formData.append('openingHours', newsData.openingHours || '');
-    formData.append('entryFee', newsData.entryFee || '');
-    formData.append('travelTime', newsData.travelTime || '');
-    if (newsData.highlights !== undefined) {
-      formData.append('highlights', (newsData.highlights || []).join(','));
+    if (spotData.rating !== undefined) formData.append('rating', spotData.rating.toString());
+    formData.append('coordinates', spotData.coordinates || '');
+    formData.append('openingHours', spotData.openingHours || '');
+    formData.append('entryFee', spotData.entryFee || '');
+    formData.append('travelTime', spotData.travelTime || '');
+    if (spotData.highlights !== undefined) {
+      formData.append('highlights', (spotData.highlights || []).join(','));
     }
     
     // Add image file if provided
