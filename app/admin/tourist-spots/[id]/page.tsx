@@ -433,7 +433,11 @@ export default function ViewTouristSpotPage() {
           try {
             const response = await apiService.updateTouristSpot(spot.id, spotData, imageFile, clearExistingImage);
             if (response.success) {
-              await fetchSpot(); // Refresh the spot data
+              // Refresh the spot data from API
+              const refreshResponse = await apiService.getTouristSpotById(spotId);
+              if (refreshResponse.success) {
+                setSpot(refreshResponse.data);
+              }
               setEditModalOpen(false);
               showToast.success('Tourist spot updated successfully');
             } else {
