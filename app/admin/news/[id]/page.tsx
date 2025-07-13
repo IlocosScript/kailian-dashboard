@@ -224,12 +224,9 @@ export default function ViewNewsPage() {
           {news.fullContent && (
             <div className="space-y-4">
               <Separator />
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Article Content</h3>
-                <div className="prose max-w-none">
-                  <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                    {news.fullContent}
-                  </div>
+              <div className="prose max-w-none">
+                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {news.fullContent}
                 </div>
               </div>
             </div>
