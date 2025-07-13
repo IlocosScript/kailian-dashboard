@@ -24,6 +24,7 @@ import {
 import { apiService, NewsArticle, getImageUrl } from '@/lib/api';
 import ConfirmationModal from '@/components/ui/confirmation-modal';
 import { showToast } from '@/lib/toast';
+import NewsForm from '@/components/admin/news/news-form';
 
 export default function ViewNewsPage() {
   const params = useParams();
