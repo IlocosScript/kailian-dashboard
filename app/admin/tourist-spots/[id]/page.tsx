@@ -94,7 +94,11 @@ export default function ViewTouristSpotPage() {
       if (confirmModal.type === 'activate') {
         const response = await apiService.activateTouristSpot(spot.id);
         if (response.success) {
-          await fetchSpot();
+          // Refresh the spot data from the API
+          const refreshResponse = await apiService.getTouristSpotById(spotId);
+          if (refreshResponse.success) {
+            setSpot(refreshResponse.data);
+          }
           showToast.success('Tourist spot activated successfully');
         } else {
           throw new Error(response.message || 'Failed to activate tourist spot');
@@ -102,7 +106,11 @@ export default function ViewTouristSpotPage() {
       } else {
         const response = await apiService.deactivateTouristSpot(spot.id);
         if (response.success) {
-          await fetchSpot();
+          // Refresh the spot data from the API
+          const refreshResponse = await apiService.getTouristSpotById(spotId);
+          if (refreshResponse.success) {
+            setSpot(refreshResponse.data);
+          }
           showToast.success('Tourist spot deactivated successfully');
         } else {
           throw new Error(response.message || 'Failed to deactivate tourist spot');

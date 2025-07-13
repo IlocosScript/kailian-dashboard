@@ -77,6 +77,8 @@ export default function TouristSpotsPage() {
               ? { ...spot, isActive: true }
               : spot
           ));
+          // Refresh the entire list to ensure data consistency
+          await fetchTouristSpots();
           resolve();
         } else {
           reject(new Error(response.message || 'Failed to activate tourist spot'));
@@ -98,6 +100,8 @@ export default function TouristSpotsPage() {
               ? { ...spot, isActive: false }
               : spot
           ));
+          // Refresh the entire list to ensure data consistency
+          await fetchTouristSpots();
           resolve();
         } else {
           reject(new Error(response.message || 'Failed to deactivate tourist spot'));
