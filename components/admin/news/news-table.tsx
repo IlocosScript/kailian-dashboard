@@ -113,7 +113,7 @@ export default function NewsTable({ news, onEdit, onDelete, onPublish }: NewsTab
                   </div>
                 </TableCell>
                 <TableCell>
-                  <TruncatedText text={item.author} maxLength={20} />
+                  <TruncatedText text={item.author} showInitials={true} />
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline">{item.category}</Badge>

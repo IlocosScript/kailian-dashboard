@@ -11,16 +11,26 @@ interface TruncatedTextProps {
   maxLength?: number;
   className?: string;
   showTooltip?: boolean;
+  showInitials?: boolean;
 }
 
 export function TruncatedText({ 
   text, 
   maxLength = 50, 
   className = '', 
-  showTooltip = true 
+  showTooltip = true,
+  showInitials = false
 }: TruncatedTextProps) {
+  const getInitials = (name: string): string => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase())
+      .join('');
+  };
+
+  const displayText = showInitials ? getInitials(text) : text;
   const shouldTruncate = text.length > maxLength;
-  const truncatedText = shouldTruncate ? `${text.slice(0, maxLength)}...` : text;
+  const truncatedText = shouldTruncate && !showInitials ? `${displayText.slice(0, maxLength)}...` : displayText;
 
   if (!shouldTruncate || !showTooltip) {
     return <span className={className}>{truncatedText}</span>;
