@@ -17,7 +17,8 @@ import {
   User,
   Star,
   TrendingUp,
-  Tag
+  Tag,
+  Send
 } from 'lucide-react';
 import { apiService, NewsArticle, getImageUrl } from '@/lib/api';
 
@@ -27,6 +28,7 @@ export default function ViewNewsPage() {
   const [news, setNews] = useState<NewsArticle | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
 
   const newsId = params.id as string;
 
@@ -55,6 +57,26 @@ export default function ViewNewsPage() {
     }
   }, [newsId]);
 
+  const handlePublish = async () => {
+    if (!news) return;
+    
+    try {
+      setPublishing(true);
+      const response = await apiService.publishNews(news.id);
+      
+      if (response.success) {
+        // Update the news status locally
+        setNews({ ...news, status: 'Published' });
+      } else {
+        setError(response.message || 'Failed to publish news');
+      }
+    } catch (err) {
+      setError('Failed to publish news');
+      console.error('Error publishing news:', err);
+    } finally {
+      setPublishing(false);
+    }
+  };
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Not set';
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -133,10 +155,22 @@ export default function ViewNewsPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to News
         </Button>
-        <Button onClick={() => router.push(`/admin/news/${newsId}/edit`)}>
-          <Edit className="mr-2 h-4 w-4" />
-          Edit Article
-        </Button>
+        <div className="flex space-x-2">
+          {news.status !== 'Published' && (
+            <Button 
+              onClick={handlePublish} 
+              disabled={publishing}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Send className="mr-2 h-4 w-4" />
+              {publishing ? 'Publishing...' : 'Publish'}
+            </Button>
+          )}
+          <Button onClick={() => router.push(`/admin/news/${newsId}/edit`)}>
+            <Edit className="mr-2 h-4 w-4" />
+            Edit Article
+          </Button>
+        </div>
       </div>
 
       <Card>
