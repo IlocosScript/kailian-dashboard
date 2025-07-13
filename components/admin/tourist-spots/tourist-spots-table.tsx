@@ -160,7 +160,7 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete, onAc
               <TableHead>Contact</TableHead>
               <TableHead>Views</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Created</TableHead>
+             
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
