@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, RefreshCw } from 'lucide-react';
-import { apiService, TouristSpot } from '@/lib/api';
+import { ApiService, TouristSpot } from '@/lib/api';
 import TouristSpotsTable from '@/components/admin/tourist-spots/tourist-spots-table';
 import TouristSpotForm from '@/components/admin/tourist-spots/tourist-spot-form';
 import { showToast } from '@/lib/toast';
@@ -20,7 +20,7 @@ export default function TouristSpotsPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiService.getTouristSpots({ pageSize: 50 });
+      const response = await ApiService.getTouristSpots({ pageSize: 50 });
       
       if (response.success) {
         setTouristSpots(response.data);
@@ -53,7 +53,7 @@ export default function TouristSpotsPage() {
     // This function is now handled by the confirmation modal in TouristSpotsTable
     return new Promise<void>(async (resolve, reject) => {
       try {
-        const response = await apiService.deleteTouristSpot(id);
+        const response = await ApiService.deleteTouristSpot(id);
         if (response.success) {
           setTouristSpots(touristSpots.filter(spot => spot.id !== id));
           resolve();
@@ -70,7 +70,7 @@ export default function TouristSpotsPage() {
     // This function is now handled by the confirmation modal in TouristSpotsTable
     return new Promise<void>(async (resolve, reject) => {
       try {
-        const response = await apiService.activateTouristSpot(id);
+        const response = await ApiService.activateTouristSpot(id);
         if (response.success) {
           setTouristSpots(touristSpots.map(spot => 
             spot.id === id 
@@ -93,7 +93,7 @@ export default function TouristSpotsPage() {
     // This function is now handled by the confirmation modal in TouristSpotsTable
     return new Promise<void>(async (resolve, reject) => {
       try {
-        const response = await apiService.deactivateTouristSpot(id);
+        const response = await ApiService.deactivateTouristSpot(id);
         if (response.success) {
           setTouristSpots(touristSpots.map(spot => 
             spot.id === id 
@@ -118,7 +118,7 @@ export default function TouristSpotsPage() {
       
       if (selectedSpot) {
         // Update existing spot
-        response = await apiService.updateTouristSpot(selectedSpot.id, spotData, imageFile, clearExistingImage);
+        response = await ApiService.updateTouristSpot(selectedSpot.id, spotData, imageFile, clearExistingImage);
         if (response.success) {
           setTouristSpots(touristSpots.map(spot => 
             spot.id === selectedSpot.id 
@@ -128,7 +128,7 @@ export default function TouristSpotsPage() {
         }
       } else {
         // Create new spot
-        response = await apiService.createTouristSpot(spotData, imageFile);
+        response = await ApiService.createTouristSpot(spotData, imageFile);
         if (response.success) {
           setTouristSpots([response.data, ...touristSpots]);
         }

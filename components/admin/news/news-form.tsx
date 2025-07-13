@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { NewsArticle, NEWS_CATEGORIES, apiService } from '@/lib/api';
+import { NewsArticle, NEWS_CATEGORIES, ApiService } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -63,7 +64,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         setIsLoadingFullData(true);
         try {
           console.log('Fetching full news data for ID:', news.id);
-          const response = await apiService.getNewsById(news.id.toString());
+          const response = await ApiService.getNewsById(news.id.toString());
           if (response.success) {
             console.log('Full news data received:', response.data);
             setFullNewsData(response.data);

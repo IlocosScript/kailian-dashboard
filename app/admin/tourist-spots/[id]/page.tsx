@@ -20,7 +20,7 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
-import { apiService, TouristSpot, getImageUrl } from '@/lib/api';
+import { ApiService, TouristSpot, getImageUrl } from '@/lib/api';
 import ConfirmationModal from '@/components/ui/confirmation-modal';
 import { showToast } from '@/lib/toast';
 import TouristSpotForm from '@/components/admin/tourist-spots/tourist-spot-form';
@@ -49,7 +49,7 @@ export default function ViewTouristSpotPage() {
       try {
         setLoading(true);
         setError(null);
-        const response = await apiService.getTouristSpotById(spotId);
+        const response = await ApiService.getTouristSpotById(spotId);
         
         if (response.success) {
           setSpot(response.data);
@@ -92,10 +92,10 @@ export default function ViewTouristSpotPage() {
 
     try {
       if (confirmModal.type === 'activate') {
-        const response = await apiService.activateTouristSpot(spot.id);
+        const response = await ApiService.activateTouristSpot(spot.id);
         if (response.success) {
           // Refresh the spot data from the API
-          const refreshResponse = await apiService.getTouristSpotById(spotId);
+          const refreshResponse = await ApiService.getTouristSpotById(spotId);
           if (refreshResponse.success) {
             setSpot(refreshResponse.data);
           }
@@ -104,10 +104,10 @@ export default function ViewTouristSpotPage() {
           throw new Error(response.message || 'Failed to activate tourist spot');
         }
       } else {
-        const response = await apiService.deactivateTouristSpot(spot.id);
+        const response = await ApiService.deactivateTouristSpot(spot.id);
         if (response.success) {
           // Refresh the spot data from the API
-          const refreshResponse = await apiService.getTouristSpotById(spotId);
+          const refreshResponse = await ApiService.getTouristSpotById(spotId);
           if (refreshResponse.success) {
             setSpot(refreshResponse.data);
           }
@@ -129,7 +129,7 @@ export default function ViewTouristSpotPage() {
 
   const fetchSpot = async () => {
     try {
-      const response = await apiService.getTouristSpotById(spotId);
+      const response = await ApiService.getTouristSpotById(spotId);
       if (response.success) {
         setSpot(response.data);
       } else {
@@ -419,10 +419,10 @@ export default function ViewTouristSpotPage() {
         onOpenChange={setEditModalOpen}
         onSubmit={async (spotData, imageFile, clearExistingImage) => {
           try {
-            const response = await apiService.updateTouristSpot(spot.id, spotData, imageFile, clearExistingImage);
+           const response = await ApiService.updateTouristSpot(spot.id, spotData, imageFile, clearExistingImage);
             if (response.success) {
               // Refresh the spot data from API
-              const refreshResponse = await apiService.getTouristSpotById(spotId);
+            const refreshResponse = await ApiService.getTouristSpotById(spotId);
               if (refreshResponse.success) {
                 setSpot(refreshResponse.data);
               }

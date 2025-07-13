@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Newspaper, MapPin, Users, TrendingUp } from 'lucide-react';
-import { apiService, NewsArticle, TouristSpot, getImageUrl } from '@/lib/api';
+import { ApiService, NewsArticle, TouristSpot, getImageUrl } from '@/lib/api';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -41,8 +41,8 @@ export default function AdminDashboard() {
         
         // Fetch news and tourist spots data
         const [newsResponse, spotsResponse] = await Promise.all([
-          apiService.getNews({ pageSize: 10 }),
-          apiService.getTouristSpots({ pageSize: 10, isActive: true }),
+          ApiService.getNews({ pageSize: 10 }),
+          ApiService.getTouristSpots({ pageSize: 10, isActive: true }),
         ]);
 
         console.log('News response:', newsResponse);

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { TouristSpot, apiService, getImageUrl } from '@/lib/api';
+import { TouristSpot, ApiService, getImageUrl } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -52,7 +53,7 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
         setIsLoadingFullData(true);
         try {
           console.log('Fetching full tourist spot data for ID:', touristSpot.id);
-          const response = await apiService.getTouristSpotById(touristSpot.id.toString());
+          const response = await ApiService.getTouristSpotById(touristSpot.id.toString());
           if (response.success) {
             console.log('Full tourist spot data received:', response.data);
             setFullSpotData(response.data);

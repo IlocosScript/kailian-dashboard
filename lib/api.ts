@@ -487,3 +487,5 @@ export class ApiService {
     return this.simulateApiCall(mockDashboardStats);
   }
 }
+
+export const apiService = ApiService;

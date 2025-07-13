@@ -21,7 +21,7 @@ import {
   Send,
   Archive
 } from 'lucide-react';
-import { apiService, NewsArticle, getImageUrl } from '@/lib/api';
+import { ApiService, NewsArticle, getImageUrl } from '@/lib/api';
 import ConfirmationModal from '@/components/ui/confirmation-modal';
 import { showToast } from '@/lib/toast';
 import NewsForm from '@/components/admin/news/news-form';
@@ -52,7 +52,7 @@ export default function ViewNewsPage() {
       try {
         setLoading(true);
         setError(null);
-        const response = await apiService.getNewsById(newsId);
+        const response = await ApiService.getNewsById(newsId);
         
         if (response.success) {
           setNews(response.data);
@@ -95,7 +95,7 @@ export default function ViewNewsPage() {
 
     try {
       if (confirmModal.type === 'publish') {
-        const response = await apiService.publishNews(news.id);
+        const response = await ApiService.publishNews(news.id);
         if (response.success) {
           // Refresh the entire news data from API
           await fetchNews();
@@ -104,7 +104,7 @@ export default function ViewNewsPage() {
           throw new Error(response.message || 'Failed to publish news');
         }
       } else {
-        const response = await apiService.unpublishNews(news.id);
+        const response = await ApiService.unpublishNews(news.id);
         if (response.success) {
           // Refresh the entire news data from API
           await fetchNews();
@@ -126,7 +126,7 @@ export default function ViewNewsPage() {
 
   const fetchNews = async () => {
     try {
-      const response = await apiService.getNewsById(newsId);
+      const response = await ApiService.getNewsById(newsId);
       if (response.success) {
         setNews(response.data);
       }
@@ -389,7 +389,7 @@ export default function ViewNewsPage() {
         onOpenChange={setEditModalOpen}
         onSubmit={async (newsData, imageFile, clearExistingImage) => {
           try {
-            const response = await apiService.updateNews(news.id, newsData, imageFile, clearExistingImage);
+           const response = await ApiService.updateNews(news.id, newsData, imageFile, clearExistingImage);
             if (response.success) {
               await fetchNews(); // Refresh the news data
               setEditModalOpen(false);

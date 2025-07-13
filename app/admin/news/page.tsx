@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, RefreshCw } from 'lucide-react';
-import { apiService, NewsArticle } from '@/lib/api';
+import { ApiService, NewsArticle } from '@/lib/api';
 import NewsTable from '@/components/admin/news/news-table';
 import NewsForm from '@/components/admin/news/news-form';
 import { showToast } from '@/lib/toast';
@@ -20,7 +20,7 @@ export default function NewsPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiService.getNews({ pageSize: 50 });
+      const response = await ApiService.getNews({ pageSize: 50 });
       
       if (response.success) {
         setNews(response.data);
@@ -53,7 +53,7 @@ export default function NewsPage() {
     // This function is now handled by the confirmation modal in NewsTable
     return new Promise<void>(async (resolve, reject) => {
       try {
-        const response = await apiService.deleteNews(id);
+        const response = await ApiService.deleteNews(id);
         if (response.success) {
           setNews(news.filter(item => item.id !== id));
           resolve();
@@ -70,7 +70,7 @@ export default function NewsPage() {
     // This function is now handled by the confirmation modal in NewsTable
     return new Promise<void>(async (resolve, reject) => {
       try {
-        const response = await apiService.publishNews(id);
+        const response = await ApiService.publishNews(id);
         if (response.success) {
           setNews(news.map(item => 
             item.id === id 
@@ -91,7 +91,7 @@ export default function NewsPage() {
     // This function is now handled by the confirmation modal in NewsTable
     return new Promise<void>(async (resolve, reject) => {
       try {
-        const response = await apiService.unpublishNews(id);
+        const response = await ApiService.unpublishNews(id);
         if (response.success) {
           setNews(news.map(item => 
             item.id === id 
@@ -114,7 +114,7 @@ export default function NewsPage() {
       
       if (selectedNews) {
         // Update existing news
-        response = await apiService.updateNews(selectedNews.id, newsData, imageFile, clearExistingImage);
+        response = await ApiService.updateNews(selectedNews.id, newsData, imageFile, clearExistingImage);
         if (response.success) {
           setNews(news.map(item => 
             item.id === selectedNews.id 
@@ -124,7 +124,7 @@ export default function NewsPage() {
         }
       } else {
         // Create new news
-        response = await apiService.createNews(newsData, imageFile);
+        response = await ApiService.createNews(newsData, imageFile);
         if (response.success) {
           setNews([response.data, ...news]);
         }
