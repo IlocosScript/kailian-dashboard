@@ -57,22 +57,6 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
 
   useEffect(() => {
     if (news) {
-      // Format dates for input fields
-      let formattedDate = '';
-      let formattedTime = '';
-      
-      if (news.publishedDate) {
-        // Handle different date formats
-        const date = new Date(news.publishedDate);
-        if (!isNaN(date.getTime())) {
-          formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
-        }
-      }
-      
-      if (news.publishedTime) {
-        formattedTime = news.publishedTime;
-      }
-      
       setFormData({
         title: news.title || '',
         summary: news.summary || '',
@@ -81,8 +65,8 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         category: news.category || 'Festival',
         location: news.location || '',
         expectedAttendees: news.expectedAttendees || '',
-        publishedDate: formattedDate,
-        publishedTime: formattedTime,
+        publishedDate: '',
+        publishedTime: '',
         isFeatured: news.isFeatured || false,
         isTrending: news.isTrending || false,
         tags: news.tags || [],
@@ -188,28 +172,6 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
               value={formData.author}
               onChange={(e) => setFormData({ ...formData, author: e.target.value })}
               required
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="publishedDate">Published Date</Label>
-            <Input
-              id="publishedDate"
-              type="date"
-              value={formData.publishedDate}
-              onChange={(e) => setFormData({ ...formData, publishedDate: e.target.value })}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="publishedTime">Published Time</Label>
-            <Input
-              id="publishedTime"
-              type="time"
-              value={formData.publishedTime}
-              onChange={(e) => setFormData({ ...formData, publishedTime: e.target.value })}
             />
           </div>
         </div>
@@ -397,28 +359,6 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                 value={formData.author}
                 onChange={(e) => setFormData({ ...formData, author: e.target.value })}
                 required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="publishedDate">Published Date</Label>
-              <Input
-                id="publishedDate"
-                type="date"
-                value={formData.publishedDate}
-                onChange={(e) => setFormData({ ...formData, publishedDate: e.target.value })}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="publishedTime">Published Time</Label>
-              <Input
-                id="publishedTime"
-                type="time"
-                value={formData.publishedTime}
-                onChange={(e) => setFormData({ ...formData, publishedTime: e.target.value })}
               />
             </div>
           </div>

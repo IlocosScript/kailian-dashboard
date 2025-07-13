@@ -120,8 +120,6 @@ class ApiService {
     
     // Add optional fields only if they have non-empty values
     if (newsData.summary && newsData.summary.trim()) formData.append('summary', newsData.summary);
-    if (newsData.publishedDate && newsData.publishedDate.trim()) formData.append('publishedDate', newsData.publishedDate);
-    if (newsData.publishedTime && newsData.publishedTime.trim()) formData.append('publishedTime', newsData.publishedTime);
     if (newsData.expectedAttendees && newsData.expectedAttendees.trim()) formData.append('expectedAttendees', newsData.expectedAttendees);
     if (newsData.tags && newsData.tags.length > 0) {
       formData.append('tags', newsData.tags.join(','));
@@ -150,8 +148,6 @@ class ApiService {
     
     // Add optional fields - always append to explicitly communicate their state
     formData.append('summary', newsData.summary || '');
-    formData.append('publishedDate', newsData.publishedDate || '');
-    formData.append('publishedTime', newsData.publishedTime || '');
     formData.append('expectedAttendees', newsData.expectedAttendees || '');
     if (newsData.tags !== undefined) {
       formData.append('tags', (newsData.tags || []).join(','));
