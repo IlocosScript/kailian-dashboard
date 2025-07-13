@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CivilRegistry } from '@/lib/mockData';
+import { Feedback } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -19,37 +19,35 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Search, Edit, Trash2, FileText, Hash } from 'lucide-react';
+import { MoreHorizontal, Search, Edit, Trash2, Star, MessageSquare } from 'lucide-react';
 import ConfirmationModal from '@/components/ui/confirmation-modal';
 import { showToast } from '@/lib/toast';
 
-interface CivilRegistryTableProps {
-  civilRegistry: CivilRegistry[];
-  onEdit: (registry: CivilRegistry) => void;
-  onDelete: (appointmentId: string) => void;
+interface FeedbackTableProps {
+  feedback: Feedback[];
+  onEdit: (feedback: Feedback) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: CivilRegistryTableProps) {
+export default function FeedbackTable({ feedback, onEdit, onDelete }: FeedbackTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmModal, setConfirmModal] = useState<{
     open: boolean;
-    registry: CivilRegistry | null;
+    feedback: Feedback | null;
     loading: boolean;
   }>({
     open: false,
-    registry: null,
+    feedback: null,
     loading: false,
   });
 
-  const filteredRegistry = civilRegistry.filter(registry =>
-    registry.documentType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    registry.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    registry.purpose.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (registry.registryNumber && registry.registryNumber.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredFeedback = feedback.filter(item =>
+    item.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.category && item.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (item.comment && item.comment.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const formatDate = (date?: Date) => {
-    if (!date) return 'N/A';
+  const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -57,12 +55,25 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
     });
   };
 
+  const getTypeBadge = (type: string) => {
+    const typeColors: Record<string, string> = {
+      'App': 'bg-blue-500',
+      'Service': 'bg-green-500',
+    };
+    
+    return (
+      <Badge className={typeColors[type] || 'bg-gray-500'}>
+        {type}
+      </Badge>
+    );
+  };
+
   const getStatusBadge = (status: string) => {
     const statusColors: Record<string, string> = {
-      'Completed': 'bg-green-500',
-      'Processing': 'bg-blue-500',
-      'Pending': 'bg-yellow-500',
-      'Rejected': 'bg-red-500',
+      'New': 'bg-blue-500',
+      'Reviewed': 'bg-green-500',
+      'Resolved': 'bg-purple-500',
+      'Dismissed': 'bg-gray-500',
     };
     
     return (
@@ -72,24 +83,40 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
     );
   };
 
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex items-center space-x-1">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            className={`h-4 w-4 ${
+              i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+            }`}
+          />
+        ))}
+        <span className="ml-1 text-sm">({rating})</span>
+      </div>
+    );
+  };
+
   const handleConfirmDelete = async () => {
-    if (!confirmModal.registry) return;
+    if (!confirmModal.feedback) return;
 
     setConfirmModal(prev => ({ ...prev, loading: true }));
 
     try {
-      await onDelete(confirmModal.registry.appointmentId);
-      setConfirmModal({ open: false, registry: null, loading: false });
+      await onDelete(confirmModal.feedback.id);
+      setConfirmModal({ open: false, feedback: null, loading: false });
     } catch (error) {
-      showToast.error('Failed to delete civil registry request');
+      showToast.error('Failed to delete feedback');
       setConfirmModal(prev => ({ ...prev, loading: false }));
     }
   };
 
-  const openConfirmModal = (registry: CivilRegistry) => {
+  const openConfirmModal = (feedbackItem: Feedback) => {
     setConfirmModal({
       open: true,
-      registry,
+      feedback: feedbackItem,
       loading: false,
     });
   };
@@ -100,7 +127,7 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search registry requests..."
+            placeholder="Search feedback..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-8"
@@ -112,60 +139,45 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Document Type</TableHead>
-              <TableHead>Requestor</TableHead>
-              <TableHead>Purpose</TableHead>
-              <TableHead>Copies</TableHead>
-              <TableHead>Registry Info</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Rating</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Comment</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredRegistry.map((registry) => (
-              <TableRow key={registry.appointmentId}>
+            {filteredFeedback.map((item) => (
+              <TableRow key={item.id}>
                 <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <FileText className="h-4 w-4" />
-                    <span className="font-medium">{registry.documentType}</span>
-                  </div>
+                  {getTypeBadge(item.type)}
                 </TableCell>
                 <TableCell>
-                  <div className="font-medium">{registry.userName}</div>
+                  {renderStars(item.rating)}
                 </TableCell>
                 <TableCell>
-                  <div className="text-sm">{registry.purpose}</div>
+                  {item.category && (
+                    <Badge variant="outline">{item.category}</Badge>
+                  )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{registry.numberOfCopies}</Badge>
+                  {item.comment ? (
+                    <div className="flex items-start space-x-2">
+                      <MessageSquare className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm max-w-xs truncate">{item.comment}</span>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">No comment</span>
+                  )}
                 </TableCell>
                 <TableCell>
-                  <div className="space-y-1">
-                    {registry.registryNumber && (
-                      <div className="flex items-center space-x-1 text-xs">
-                        <Hash className="h-3 w-3" />
-                        <span>{registry.registryNumber}</span>
-                      </div>
-                    )}
-                    {registry.registryDate && (
-                      <div className="text-xs text-muted-foreground">
-                        {formatDate(registry.registryDate)}
-                      </div>
-                    )}
-                    {registry.registryPlace && (
-                      <div className="text-xs text-muted-foreground">
-                        {registry.registryPlace}
-                      </div>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {getStatusBadge(registry.status)}
+                  {getStatusBadge(item.status)}
                 </TableCell>
                 <TableCell>
                   <div className="text-sm">
-                    {formatDate(registry.createdAt)}
+                    {formatDate(item.createdAt)}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -176,12 +188,12 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEdit(registry)}>
+                      <DropdownMenuItem onClick={() => onEdit(item)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem 
-                        onClick={() => openConfirmModal(registry)}
+                        onClick={() => openConfirmModal(item)}
                         className="text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
@@ -192,10 +204,10 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
                 </TableCell>
               </TableRow>
             ))}
-            {filteredRegistry.length === 0 && (
+            {filteredFeedback.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
-                  <p className="text-muted-foreground">No registry requests found</p>
+                <TableCell colSpan={7} className="text-center py-8">
+                  <p className="text-muted-foreground">No feedback found</p>
                 </TableCell>
               </TableRow>
             )}
@@ -208,8 +220,8 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
         onOpenChange={(open) => setConfirmModal(prev => ({ ...prev, open }))}
         onConfirm={handleConfirmDelete}
         loading={confirmModal.loading}
-        title="Delete Registry Request"
-        description={`Are you sure you want to delete the ${confirmModal.registry?.documentType} request for "${confirmModal.registry?.userName}"? This action cannot be undone.`}
+        title="Delete Feedback"
+        description={`Are you sure you want to delete this ${confirmModal.feedback?.type} feedback? This action cannot be undone.`}
         confirmText="Delete"
         variant="destructive"
         icon="delete"

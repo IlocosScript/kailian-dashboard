@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { CivilRegistry } from '@/lib/mockData';
+import { PublicProject } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import {
   Table,
   TableBody,
@@ -19,37 +20,36 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Search, Edit, Trash2, FileText, Hash } from 'lucide-react';
+import { MoreHorizontal, Search, Edit, Trash2, Building, DollarSign, Calendar } from 'lucide-react';
 import ConfirmationModal from '@/components/ui/confirmation-modal';
 import { showToast } from '@/lib/toast';
 
-interface CivilRegistryTableProps {
-  civilRegistry: CivilRegistry[];
-  onEdit: (registry: CivilRegistry) => void;
-  onDelete: (appointmentId: string) => void;
+interface ProjectsTableProps {
+  projects: PublicProject[];
+  onEdit: (project: PublicProject) => void;
+  onDelete: (id: number) => void;
 }
 
-export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: CivilRegistryTableProps) {
+export default function ProjectsTable({ projects, onEdit, onDelete }: ProjectsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmModal, setConfirmModal] = useState<{
     open: boolean;
-    registry: CivilRegistry | null;
+    project: PublicProject | null;
     loading: boolean;
   }>({
     open: false,
-    registry: null,
+    project: null,
     loading: false,
   });
 
-  const filteredRegistry = civilRegistry.filter(registry =>
-    registry.documentType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    registry.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    registry.purpose.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (registry.registryNumber && registry.registryNumber.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredProjects = projects.filter(project =>
+    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.contractor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.projectType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (project.location && project.location.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const formatDate = (date?: Date) => {
-    if (!date) return 'N/A';
+  const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -60,9 +60,10 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
   const getStatusBadge = (status: string) => {
     const statusColors: Record<string, string> = {
       'Completed': 'bg-green-500',
-      'Processing': 'bg-blue-500',
-      'Pending': 'bg-yellow-500',
-      'Rejected': 'bg-red-500',
+      'In Progress': 'bg-blue-500',
+      'Planning': 'bg-yellow-500',
+      'On Hold': 'bg-orange-500',
+      'Cancelled': 'bg-red-500',
     };
     
     return (
@@ -73,23 +74,23 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
   };
 
   const handleConfirmDelete = async () => {
-    if (!confirmModal.registry) return;
+    if (!confirmModal.project) return;
 
     setConfirmModal(prev => ({ ...prev, loading: true }));
 
     try {
-      await onDelete(confirmModal.registry.appointmentId);
-      setConfirmModal({ open: false, registry: null, loading: false });
+      await onDelete(confirmModal.project.id);
+      setConfirmModal({ open: false, project: null, loading: false });
     } catch (error) {
-      showToast.error('Failed to delete civil registry request');
+      showToast.error('Failed to delete project');
       setConfirmModal(prev => ({ ...prev, loading: false }));
     }
   };
 
-  const openConfirmModal = (registry: CivilRegistry) => {
+  const openConfirmModal = (project: PublicProject) => {
     setConfirmModal({
       open: true,
-      registry,
+      project,
       loading: false,
     });
   };
@@ -100,7 +101,7 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search registry requests..."
+            placeholder="Search projects..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-8"
@@ -112,60 +113,61 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Document Type</TableHead>
-              <TableHead>Requestor</TableHead>
-              <TableHead>Purpose</TableHead>
-              <TableHead>Copies</TableHead>
-              <TableHead>Registry Info</TableHead>
+              <TableHead>Project Title</TableHead>
+              <TableHead>Contractor</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Cost</TableHead>
+              <TableHead>Progress</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>Timeline</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredRegistry.map((registry) => (
-              <TableRow key={registry.appointmentId}>
+            {filteredProjects.map((project) => (
+              <TableRow key={project.id}>
                 <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <FileText className="h-4 w-4" />
-                    <span className="font-medium">{registry.documentType}</span>
+                  <div>
+                    <div className="font-medium">{project.title}</div>
+                    {project.location && (
+                      <div className="text-sm text-muted-foreground">
+                        {project.location}
+                      </div>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="font-medium">{registry.userName}</div>
+                  <div className="font-medium">{project.contractor}</div>
                 </TableCell>
                 <TableCell>
-                  <div className="text-sm">{registry.purpose}</div>
+                  <Badge variant="outline">{project.projectType}</Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{registry.numberOfCopies}</Badge>
+                  <div className="flex items-center space-x-1">
+                    <DollarSign className="h-3 w-3" />
+                    <span>₱{project.cost.toLocaleString()}</span>
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="space-y-1">
-                    {registry.registryNumber && (
-                      <div className="flex items-center space-x-1 text-xs">
-                        <Hash className="h-3 w-3" />
-                        <span>{registry.registryNumber}</span>
-                      </div>
-                    )}
-                    {registry.registryDate && (
-                      <div className="text-xs text-muted-foreground">
-                        {formatDate(registry.registryDate)}
-                      </div>
-                    )}
-                    {registry.registryPlace && (
-                      <div className="text-xs text-muted-foreground">
-                        {registry.registryPlace}
-                      </div>
-                    )}
+                    <Progress value={project.progress || 0} className="w-16" />
+                    <div className="text-xs text-center">{project.progress || 0}%</div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  {getStatusBadge(registry.status)}
+                  {getStatusBadge(project.status)}
                 </TableCell>
                 <TableCell>
-                  <div className="text-sm">
-                    {formatDate(registry.createdAt)}
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-1 text-xs">
+                      <Calendar className="h-3 w-3" />
+                      <span>Start: {formatDate(project.startDate)}</span>
+                    </div>
+                    {project.expectedEndDate && (
+                      <div className="text-xs text-muted-foreground">
+                        End: {formatDate(project.expectedEndDate)}
+                      </div>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -176,12 +178,12 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onEdit(registry)}>
+                      <DropdownMenuItem onClick={() => onEdit(project)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem 
-                        onClick={() => openConfirmModal(registry)}
+                        onClick={() => openConfirmModal(project)}
                         className="text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
@@ -192,10 +194,10 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
                 </TableCell>
               </TableRow>
             ))}
-            {filteredRegistry.length === 0 && (
+            {filteredProjects.length === 0 && (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8">
-                  <p className="text-muted-foreground">No registry requests found</p>
+                  <p className="text-muted-foreground">No projects found</p>
                 </TableCell>
               </TableRow>
             )}
@@ -208,8 +210,8 @@ export default function CivilRegistryTable({ civilRegistry, onEdit, onDelete }: 
         onOpenChange={(open) => setConfirmModal(prev => ({ ...prev, open }))}
         onConfirm={handleConfirmDelete}
         loading={confirmModal.loading}
-        title="Delete Registry Request"
-        description={`Are you sure you want to delete the ${confirmModal.registry?.documentType} request for "${confirmModal.registry?.userName}"? This action cannot be undone.`}
+        title="Delete Project"
+        description={`Are you sure you want to delete the project "${confirmModal.project?.title}"? This action cannot be undone.`}
         confirmText="Delete"
         variant="destructive"
         icon="delete"

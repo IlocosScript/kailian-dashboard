@@ -23,34 +23,17 @@ interface CivilRegistryFormProps {
   civilRegistry?: CivilRegistry | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (entry: Partial<CivilRegistry>) => void;
+  onSubmit: (registry: Partial<CivilRegistry>) => void;
 }
 
-const documentTypes = [
-  'Birth Certificate',
-  'Marriage Certificate',
-  'Death Certificate',
-  'Certificate of No Marriage (CENOMAR)',
-  'Certificate of Live Birth',
-];
-
-const purposeOptions = [
-  'Employment Requirements',
-  'School Requirements',
-  'Passport Application',
-  'Visa Application',
-  'Legal Proceedings',
-  'Personal Records',
-  'Government Requirements',
-  'Other',
-];
-
-const statusOptions = ['Pending', 'Processing', 'Ready for Pickup', 'Completed', 'Cancelled'];
+const documentTypes = ['Birth Certificate', 'Marriage Certificate', 'Death Certificate', 'Certificate of No Marriage Record (CENOMAR)'];
+const statusOptions = ['Pending', 'Processing', 'Completed', 'Rejected'];
 
 export default function CivilRegistryForm({ civilRegistry, open, onOpenChange, onSubmit }: CivilRegistryFormProps) {
   const [formData, setFormData] = useState({
+    userId: '',
     userName: '',
-    documentType: '',
+    documentType: 'Birth Certificate',
     purpose: '',
     numberOfCopies: 1,
     registryNumber: '',
@@ -62,19 +45,21 @@ export default function CivilRegistryForm({ civilRegistry, open, onOpenChange, o
   useEffect(() => {
     if (civilRegistry) {
       setFormData({
-        userName: civilRegistry.userName || '',
-        documentType: civilRegistry.documentType || '',
-        purpose: civilRegistry.purpose || '',
-        numberOfCopies: civilRegistry.numberOfCopies || 1,
+        userId: civilRegistry.userId,
+        userName: civilRegistry.userName,
+        documentType: civilRegistry.documentType,
+        purpose: civilRegistry.purpose,
+        numberOfCopies: civilRegistry.numberOfCopies,
         registryNumber: civilRegistry.registryNumber || '',
         registryDate: civilRegistry.registryDate ? civilRegistry.registryDate.toISOString().split('T')[0] : '',
         registryPlace: civilRegistry.registryPlace || '',
-        status: civilRegistry.status || 'Pending',
+        status: civilRegistry.status,
       });
     } else {
       setFormData({
+        userId: '',
         userName: '',
-        documentType: '',
+        documentType: 'Birth Certificate',
         purpose: '',
         numberOfCopies: 1,
         registryNumber: '',
@@ -100,28 +85,28 @@ export default function CivilRegistryForm({ civilRegistry, open, onOpenChange, o
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{civilRegistry ? 'Edit Civil Registry Entry' : 'Add Civil Registry Entry'}</DialogTitle>
+          <DialogTitle>{civilRegistry ? 'Edit Registry Request' : 'Add Registry Request'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="userName">Applicant Name *</Label>
-            <Input
-              id="userName"
-              value={formData.userName}
-              onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
-              required
-            />
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="documentType">Document Type *</Label>
+              <Label htmlFor="userName">User Name *</Label>
+              <Input
+                id="userName"
+                value={formData.userName}
+                onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="documentType">Document Type</Label>
               <Select
                 value={formData.documentType}
                 onValueChange={(value) => setFormData({ ...formData, documentType: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select document type" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {documentTypes.map((type) => (
@@ -132,28 +117,20 @@ export default function CivilRegistryForm({ civilRegistry, open, onOpenChange, o
                 </SelectContent>
               </Select>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="purpose">Purpose *</Label>
-              <Select
-                value={formData.purpose}
-                onValueChange={(value) => setFormData({ ...formData, purpose: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select purpose" />
-                </SelectTrigger>
-                <SelectContent>
-                  {purposeOptions.map((purpose) => (
-                    <SelectItem key={purpose} value={purpose}>
-                      {purpose}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="purpose">Purpose *</Label>
+              <Input
+                id="purpose"
+                value={formData.purpose}
+                onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
+                placeholder="e.g., Employment Requirements"
+                required
+              />
+            </div>
+            
             <div className="space-y-2">
               <Label htmlFor="numberOfCopies">Number of Copies</Label>
               <Input
@@ -163,6 +140,40 @@ export default function CivilRegistryForm({ civilRegistry, open, onOpenChange, o
                 max="10"
                 value={formData.numberOfCopies}
                 onChange={(e) => setFormData({ ...formData, numberOfCopies: parseInt(e.target.value) || 1 })}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="registryNumber">Registry Number</Label>
+              <Input
+                id="registryNumber"
+                value={formData.registryNumber}
+                onChange={(e) => setFormData({ ...formData, registryNumber: e.target.value })}
+                placeholder="e.g., BC-2024-001"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="registryDate">Registry Date</Label>
+              <Input
+                id="registryDate"
+                type="date"
+                value={formData.registryDate}
+                onChange={(e) => setFormData({ ...formData, registryDate: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="registryPlace">Registry Place</Label>
+              <Input
+                id="registryPlace"
+                value={formData.registryPlace}
+                onChange={(e) => setFormData({ ...formData, registryPlace: e.target.value })}
+                placeholder="e.g., Manila City"
               />
             </div>
             
@@ -185,45 +196,13 @@ export default function CivilRegistryForm({ civilRegistry, open, onOpenChange, o
               </Select>
             </div>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="registryNumber">Registry Number</Label>
-            <Input
-              id="registryNumber"
-              value={formData.registryNumber}
-              onChange={(e) => setFormData({ ...formData, registryNumber: e.target.value })}
-              placeholder="e.g., BC-2024-001"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="registryDate">Registry Date</Label>
-              <Input
-                id="registryDate"
-                type="date"
-                value={formData.registryDate}
-                onChange={(e) => setFormData({ ...formData, registryDate: e.target.value })}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="registryPlace">Registry Place</Label>
-              <Input
-                id="registryPlace"
-                value={formData.registryPlace}
-                onChange={(e) => setFormData({ ...formData, registryPlace: e.target.value })}
-                placeholder="e.g., Manila City"
-              />
-            </div>
-          </div>
           
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit">
-              {civilRegistry ? 'Update Entry' : 'Create Entry'}
+              {civilRegistry ? 'Update Request' : 'Create Request'}
             </Button>
           </div>
         </form>
