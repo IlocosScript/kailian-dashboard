@@ -124,7 +124,7 @@ class ApiService {
     if (newsData.publishedTime) formData.append('publishedTime', newsData.publishedTime);
     if (newsData.expectedAttendees) formData.append('expectedAttendees', newsData.expectedAttendees);
     if (newsData.tags && newsData.tags.length > 0) {
-      formData.append('tags', JSON.stringify(newsData.tags));
+      formData.append('tags', newsData.tags.join(','));
     }
     
     // Add image file if provided
@@ -152,7 +152,7 @@ class ApiService {
     if (newsData.isTrending !== undefined) formData.append('isTrending', newsData.isTrending.toString());
     if (newsData.status !== undefined) formData.append('status', newsData.status);
     if (newsData.tags !== undefined) {
-      formData.append('tags', JSON.stringify(newsData.tags || []));
+      formData.append('tags', (newsData.tags || []).join(','));
     }
     
     // Add image file if provided
