@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Newspaper, MapPin, Home, Menu, Megaphone, AlertTriangle, Settings, Calendar, FileText } from 'lucide-react';
+import { Newspaper, MapPin, Home, Menu } from 'lucide-react';
 import { useState } from 'react';
 
 const navigation = [
@@ -23,31 +23,6 @@ const navigation = [
     name: 'Tourist Spots',
     href: '/admin/tourist-spots',
     icon: MapPin,
-  },
-  {
-    name: 'Announcements',
-    href: '/admin/announcements',
-    icon: Megaphone,
-  },
-  {
-    name: 'Issues',
-    href: '/admin/issues',
-    icon: AlertTriangle,
-  },
-  {
-    name: 'Services',
-    href: '/admin/services',
-    icon: Settings,
-  },
-  {
-    name: 'Appointments',
-    href: '/admin/appointments',
-    icon: Calendar,
-  },
-  {
-    name: 'Requests',
-    href: '/admin/requests',
-    icon: FileText,
   },
 ];
 
