@@ -367,18 +367,6 @@ export default function ViewTouristSpotPage() {
                     <span className="text-sm text-gray-600">Rating:</span>
                     <span className="font-medium text-gray-900">{spot.rating}★</span>
                   </div>
-                  {spot.createdAt && (
-                    <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-600">Created:</span>
-                    <span className="text-sm text-gray-900">{formatDate(spot.createdAt)}</span>
-                    </div>
-                  )}
-                  {spot.updatedAt && (
-                    <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-600">Updated:</span>
-                    <span className="text-sm text-gray-900">{formatDate(spot.updatedAt)}</span>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
