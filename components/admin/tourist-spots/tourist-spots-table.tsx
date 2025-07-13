@@ -230,7 +230,7 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete, onAc
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={spot.isActive === true ? 'default' : 'secondary'}>
+                  <Badge variant={spot.isActive === true ? 'default' : 'secondary'} className={spot.isActive === true ? 'bg-green-600 hover:bg-green-700' : ''}>
                     {spot.isActive === true ? 'Active' : 'Inactive'}
                   </Badge>
                 </TableCell>

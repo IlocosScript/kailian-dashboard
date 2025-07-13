@@ -257,7 +257,7 @@ export default function ViewTouristSpotPage() {
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
-                <Badge variant={spot.isActive === true ? 'default' : 'secondary'}>
+                <Badge variant={spot.isActive === true ? 'default' : 'secondary'} className={spot.isActive === true ? 'bg-green-600 hover:bg-green-700' : ''}>
                   {spot.isActive === true ? 'Active' : 'Inactive'}
                 </Badge>
               </div>
