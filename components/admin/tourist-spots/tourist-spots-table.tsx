@@ -234,7 +234,7 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete, onAc
                     {spot.isActive === true ? 'Active' : 'Inactive'}
                   </Badge>
                 </TableCell>
-                <TableCell>{spot.createdAt ? formatDate(spot.createdAt) : 'Unknown'}</TableCell>
+                
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
