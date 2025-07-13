@@ -5,7 +5,23 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Newspaper, MapPin, Home, Menu } from 'lucide-react';
+import { 
+  Newspaper, 
+  MapPin, 
+  Home, 
+  Menu, 
+  Users, 
+  Calendar, 
+  AlertTriangle, 
+  Briefcase, 
+  FileText, 
+  Building, 
+  Settings, 
+  Bell, 
+  Phone, 
+  MessageSquare, 
+  Grid3X3 
+} from 'lucide-react';
 import { useState } from 'react';
 
 const navigation = [
@@ -13,6 +29,61 @@ const navigation = [
     name: 'Dashboard',
     href: '/admin',
     icon: Home,
+  },
+  {
+    name: 'Users',
+    href: '/admin/users',
+    icon: Users,
+  },
+  {
+    name: 'Appointments',
+    href: '/admin/appointments',
+    icon: Calendar,
+  },
+  {
+    name: 'Issue Reports',
+    href: '/admin/issues',
+    icon: AlertTriangle,
+  },
+  {
+    name: 'Business Permits',
+    href: '/admin/business-permits',
+    icon: Briefcase,
+  },
+  {
+    name: 'Civil Registry',
+    href: '/admin/civil-registry',
+    icon: FileText,
+  },
+  {
+    name: 'Public Projects',
+    href: '/admin/projects',
+    icon: Building,
+  },
+  {
+    name: 'City Services',
+    href: '/admin/services',
+    icon: Settings,
+  },
+  {
+    name: 'Service Categories',
+    href: '/admin/categories',
+    icon: Grid3X3,
+  },
+  {
+    name: 'Notifications',
+    href: '/admin/notifications',
+    icon: Bell,
+  },
+  {
+    name: 'Emergency Hotlines',
+    href: '/admin/hotlines',
+    icon: Phone,
+  },
+  {
+    name: 'Feedback',
+    href: '/admin/feedback',
+    icon: MessageSquare,
   },
   {
     name: 'News',
