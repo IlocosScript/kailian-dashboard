@@ -56,6 +56,22 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
 
   useEffect(() => {
     if (news) {
+      // Format dates for input fields
+      let formattedDate = '';
+      let formattedTime = '';
+      
+      if (news.publishedDate) {
+        // Handle different date formats
+        const date = new Date(news.publishedDate);
+        if (!isNaN(date.getTime())) {
+          formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+        }
+      }
+      
+      if (news.publishedTime) {
+        formattedTime = news.publishedTime;
+      }
+      
       setFormData({
         title: news.title || '',
         summary: news.summary || '',
@@ -64,8 +80,8 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         category: news.category || 'Festival',
         location: news.location || '',
         expectedAttendees: news.expectedAttendees || '',
-        publishedDate: news.publishedDate || '',
-        publishedTime: news.publishedTime || '',
+        publishedDate: formattedDate,
+        publishedTime: formattedTime,
         isFeatured: news.isFeatured || false,
         isTrending: news.isTrending || false,
         tags: news.tags || [],
@@ -546,8 +562,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {news ? 'Update Article' : 'Create Article'}
+              {isSubmitting ? 'Saving...' : (news ? 'Update Article' : 'Create Article')}
             </Button>
           </div>
         </form>
