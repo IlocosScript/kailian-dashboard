@@ -230,8 +230,8 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete, onAc
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={spot.isActive !== false ? 'default' : 'secondary'}>
-                    {spot.isActive !== false ? 'Active' : 'Inactive'}
+                  <Badge variant={spot.isActive ? 'default' : 'secondary'}>
+                    {spot.isActive ? 'Active' : 'Inactive'}
                   </Badge>
                 </TableCell>
                 <TableCell>{spot.createdAt ? formatDate(spot.createdAt) : 'Unknown'}</TableCell>
@@ -251,13 +251,13 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete, onAc
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
-                      {!spot.isActive && (
+                      {spot.isActive === false && (
                         <DropdownMenuItem onClick={() => openConfirmModal('activate', spot)}>
                           <CheckCircle className="mr-2 h-4 w-4" />
                           Activate
                         </DropdownMenuItem>
                       )}
-                      {spot.isActive && (
+                      {spot.isActive === true && (
                         <DropdownMenuItem 
                           onClick={() => openConfirmModal('deactivate', spot)}
                           className="text-orange-600"

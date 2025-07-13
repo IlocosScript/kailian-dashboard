@@ -218,7 +218,7 @@ export default function ViewTouristSpotPage() {
           Back to Tourist Spots
         </Button>
         <div className="flex space-x-2">
-          {!spot.isActive && (
+          {spot.isActive === false && (
             <Button 
               onClick={handleActivate}
               className="bg-green-600 hover:bg-green-700"
@@ -227,7 +227,7 @@ export default function ViewTouristSpotPage() {
               Activate
             </Button>
           )}
-          {spot.isActive && (
+          {spot.isActive === true && (
             <Button 
               onClick={handleDeactivate}
               variant="outline"

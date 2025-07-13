@@ -95,7 +95,7 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
         website: spotToUse.website || '',
         operatingHours: spotToUse.operatingHours || spotToUse.openingHours || '',
         entranceFee: spotToUse.entranceFee || spotToUse.entryFee || '',
-        isActive: spotToUse.isActive !== false,
+        isActive: spotToUse.isActive === true,
         tags: spotToUse.tags || spotToUse.highlights || [],
       });
       
