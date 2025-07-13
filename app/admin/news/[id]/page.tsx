@@ -255,13 +255,9 @@ export default function ViewNewsPage() {
               Unpublish
             </Button>
           )}
-          <Button onClick={() => router.push(`/admin/news/${newsId}/edit`)}>
+          <Button onClick={() => setEditModalOpen(true)}>
             <Edit className="mr-2 h-4 w-4" />
-            Edit Article (Page)
-          </Button>
-          <Button onClick={() => setEditModalOpen(true)} variant="outline">
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Article (Modal)
+            Edit Article
           </Button>
         </div>
       </div>
