@@ -134,6 +134,7 @@ export default function ViewNewsPage() {
           Back to News
         </Button>
         <Button onClick={() => router.push(`/admin/news?edit=${newsId}`)}>
+        <Button onClick={() => router.push(`/admin/news/${newsId}/edit`)}>
           <Edit className="mr-2 h-4 w-4" />
           Edit Article
         </Button>
