@@ -57,10 +57,14 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
 
   useEffect(() => {
     if (news) {
+      console.log('News data received in form:', news);
+      console.log('fullContent value:', news.fullContent);
+      console.log('content value:', news.content);
+      
       setFormData({
         title: news.title || '',
         summary: news.summary || '',
-        fullContent: news.fullContent || news.content || '',
+        fullContent: news.fullContent || (news as any).content || '',
         author: news.author || '',
         category: news.category || 'Festival',
         location: news.location || '',
@@ -72,6 +76,12 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         tags: news.tags || [],
         status: news.status || 'Draft',
       });
+      
+      console.log('Form data set:', {
+        title: news.title || '',
+        fullContent: news.fullContent || (news as any).content || '',
+      });
+      
       setTagInput(news.tags?.join(', ') || '');
       // Set image preview with full URL for existing news
       if (news.imageUrl) {
