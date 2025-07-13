@@ -22,12 +22,21 @@ class ApiService {
       
       if (!response.ok) {
         console.error(`HTTP error! status: ${response.status}`);
-        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          errorData = { 
+            message: `HTTP error! status: ${response.status}`,
+            success: false 
+          };
+        }
+        console.error('API error response:', errorData);
         return {
           success: false,
-          data: null as T,
+          data: {} as T,
           message: errorData.message || `HTTP error! status: ${response.status}`,
-          errors: errorData.errors || [`HTTP ${response.status}`]
+          errors: errorData.errors
         };
       }
       
@@ -38,9 +47,9 @@ class ApiService {
       console.error('API request failed:', error);
       return {
         success: false,
-        data: null as T,
-        message: error instanceof Error ? error.message : 'Network error occurred',
-        errors: ['Network request failed']
+        data: {} as T,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        errors: [error instanceof Error ? error.message : 'Unknown error']
       };
     }
   }
@@ -54,13 +63,21 @@ class ApiService {
       });
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          errorData = { 
+            message: `HTTP error! status: ${response.status}`,
+            success: false 
+          };
+        }
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
-          data: null as T,
+          data: {} as T,
           message: errorData.message || `HTTP error! status: ${response.status}`,
-          errors: errorData.errors || [`HTTP ${response.status}`]
+          errors: errorData.errors
         };
       }
       
@@ -71,9 +88,9 @@ class ApiService {
       console.error('API request failed:', error);
       return {
         success: false,
-        data: null as T,
-        message: error instanceof Error ? error.message : 'Network error occurred',
-        errors: ['Network request failed']
+        data: {} as T,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        errors: [error instanceof Error ? error.message : 'Unknown error']
       };
     }
   }
@@ -86,13 +103,21 @@ class ApiService {
       });
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          errorData = { 
+            message: `HTTP error! status: ${response.status}`,
+            success: false 
+          };
+        }
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
-          data: null as T,
+          data: {} as T,
           message: errorData.message || `HTTP error! status: ${response.status}`,
-          errors: errorData.errors || [`HTTP ${response.status}`]
+          errors: errorData.errors
         };
       }
       
@@ -103,9 +128,9 @@ class ApiService {
       console.error('API request failed:', error);
       return {
         success: false,
-        data: null as T,
-        message: error instanceof Error ? error.message : 'Network error occurred',
-        errors: ['Network request failed']
+        data: {} as T,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        errors: [error instanceof Error ? error.message : 'Unknown error']
       };
     }
   }
@@ -213,7 +238,15 @@ class ApiService {
       });
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          errorData = { 
+            message: `HTTP error! status: ${response.status}`,
+            success: false 
+          };
+        }
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
@@ -249,7 +282,15 @@ class ApiService {
       });
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          errorData = { 
+            message: `HTTP error! status: ${response.status}`,
+            success: false 
+          };
+        }
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
@@ -380,7 +421,15 @@ class ApiService {
       });
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          errorData = { 
+            message: `HTTP error! status: ${response.status}`,
+            success: false 
+          };
+        }
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
@@ -416,7 +465,15 @@ class ApiService {
       });
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          errorData = { 
+            message: `HTTP error! status: ${response.status}`,
+            success: false 
+          };
+        }
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
