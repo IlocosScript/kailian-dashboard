@@ -22,7 +22,17 @@ class ApiService {
       
       if (!response.ok) {
         console.error(`HTTP error! status: ${response.status}`);
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({ 
+          message: `HTTP error! status: ${response.status}`,
+          success: false 
+        }));
+        console.error('API error response:', errorData);
+        return {
+          success: false,
+          data: {} as T,
+          message: errorData.message || `HTTP error! status: ${response.status}`,
+          errors: errorData.errors
+        };
       }
       
       const data = await response.json();
@@ -30,7 +40,12 @@ class ApiService {
       return data;
     } catch (error) {
       console.error('API request failed:', error);
-      throw error;
+      return {
+        success: false,
+        data: {} as T,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        errors: [error instanceof Error ? error.message : 'Unknown error']
+      };
     }
   }
 
@@ -45,7 +60,12 @@ class ApiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        return {
+          success: false,
+          data: {} as T,
+          message: errorData.message || `HTTP error! status: ${response.status}`,
+          errors: errorData.errors
+        };
       }
       
       const data = await response.json();
@@ -53,7 +73,12 @@ class ApiService {
       return data;
     } catch (error) {
       console.error('API request failed:', error);
-      throw error;
+      return {
+        success: false,
+        data: {} as T,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        errors: [error instanceof Error ? error.message : 'Unknown error']
+      };
     }
   }
 
@@ -67,7 +92,12 @@ class ApiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        return {
+          success: false,
+          data: {} as T,
+          message: errorData.message || `HTTP error! status: ${response.status}`,
+          errors: errorData.errors
+        };
       }
       
       const data = await response.json();
@@ -75,7 +105,12 @@ class ApiService {
       return data;
     } catch (error) {
       console.error('API request failed:', error);
-      throw error;
+      return {
+        success: false,
+        data: {} as T,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        errors: [error instanceof Error ? error.message : 'Unknown error']
+      };
     }
   }
 
@@ -184,7 +219,12 @@ class ApiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        return {
+          success: false,
+          data: {} as NewsArticle,
+          message: errorData.message || `HTTP error! status: ${response.status}`,
+          errors: errorData.errors
+        };
       }
       
       const data = await response.json();
@@ -192,7 +232,12 @@ class ApiService {
       return data;
     } catch (error) {
       console.error('API request failed:', error);
-      throw error;
+      return {
+        success: false,
+        data: {} as NewsArticle,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        errors: [error instanceof Error ? error.message : 'Unknown error']
+      };
     }
   }
 
@@ -210,7 +255,12 @@ class ApiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        return {
+          success: false,
+          data: {} as NewsArticle,
+          message: errorData.message || `HTTP error! status: ${response.status}`,
+          errors: errorData.errors
+        };
       }
       
       const data = await response.json();
@@ -218,7 +268,12 @@ class ApiService {
       return data;
     } catch (error) {
       console.error('API request failed:', error);
-      throw error;
+      return {
+        success: false,
+        data: {} as NewsArticle,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        errors: [error instanceof Error ? error.message : 'Unknown error']
+      };
     }
   }
 
@@ -331,7 +386,12 @@ class ApiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        return {
+          success: false,
+          data: {} as TouristSpot,
+          message: errorData.message || `HTTP error! status: ${response.status}`,
+          errors: errorData.errors
+        };
       }
       
       const data = await response.json();
@@ -339,7 +399,12 @@ class ApiService {
       return data;
     } catch (error) {
       console.error('API request failed:', error);
-      throw error;
+      return {
+        success: false,
+        data: {} as TouristSpot,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        errors: [error instanceof Error ? error.message : 'Unknown error']
+      };
     }
   }
 
@@ -357,7 +422,12 @@ class ApiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        return {
+          success: false,
+          data: {} as TouristSpot,
+          message: errorData.message || `HTTP error! status: ${response.status}`,
+          errors: errorData.errors
+        };
       }
       
       const data = await response.json();
@@ -365,7 +435,12 @@ class ApiService {
       return data;
     } catch (error) {
       console.error('API request failed:', error);
-      throw error;
+      return {
+        success: false,
+        data: {} as TouristSpot,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        errors: [error instanceof Error ? error.message : 'Unknown error']
+      };
     }
   }
 }
