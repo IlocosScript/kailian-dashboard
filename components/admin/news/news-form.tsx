@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { NewsArticle, NEWS_CATEGORIES } from '@/lib/api';
+import { NewsArticle, NEWS_CATEGORIES, apiService } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,7 +21,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { getImageUrl } from '@/lib/api';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Loader2 } from 'lucide-react';
 
 interface NewsFormProps {
   news?: NewsArticle | null;
@@ -54,38 +54,75 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
   const [imagePreview, setImagePreview] = useState<string>('');
   const [clearExistingImage, setClearExistingImage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingFullData, setIsLoadingFullData] = useState(false);
+  const [fullNewsData, setFullNewsData] = useState<NewsArticle | null>(null);
 
   useEffect(() => {
-    if (news) {
-      console.log('News data received in form:', news);
-      console.log('fullContent value:', news.fullContent);
-      console.log('content value:', news.content);
+    const fetchFullNewsData = async () => {
+      if (news && news.id && open) {
+        setIsLoadingFullData(true);
+        try {
+          console.log('Fetching full news data for ID:', news.id);
+          const response = await apiService.getNewsById(news.id.toString());
+          if (response.success) {
+            console.log('Full news data received:', response.data);
+            setFullNewsData(response.data);
+          } else {
+            console.error('Failed to fetch full news data:', response.message);
+            // Fallback to using the provided news data
+            setFullNewsData(news);
+          }
+        } catch (error) {
+          console.error('Error fetching full news data:', error);
+          // Fallback to using the provided news data
+          setFullNewsData(news);
+        } finally {
+          setIsLoadingFullData(false);
+        }
+      } else if (news) {
+        // If no ID (new article) or not open, use provided data directly
+        setFullNewsData(news);
+      } else {
+        setFullNewsData(null);
+      }
+    };
+
+    fetchFullNewsData();
+  }, [news, open]);
+
+  useEffect(() => {
+    const newsToUse = fullNewsData || news;
+    
+    if (newsToUse) {
+      console.log('News data being used in form:', newsToUse);
+      console.log('fullContent value:', newsToUse.fullContent);
+      console.log('content value:', (newsToUse as any).content);
       
       setFormData({
-        title: news.title || '',
-        summary: news.summary || '',
-        fullContent: news.fullContent || (news as any).content || '',
-        author: news.author || '',
-        category: news.category || 'Festival',
-        location: news.location || '',
-        expectedAttendees: news.expectedAttendees || '',
+        title: newsToUse.title || '',
+        summary: newsToUse.summary || '',
+        fullContent: newsToUse.fullContent || (newsToUse as any).content || '',
+        author: newsToUse.author || '',
+        category: newsToUse.category || 'Festival',
+        location: newsToUse.location || '',
+        expectedAttendees: newsToUse.expectedAttendees || '',
         publishedDate: '',
         publishedTime: '',
-        isFeatured: news.isFeatured || false,
-        isTrending: news.isTrending || false,
-        tags: news.tags || [],
-        status: news.status || 'Draft',
+        isFeatured: newsToUse.isFeatured || false,
+        isTrending: newsToUse.isTrending || false,
+        tags: newsToUse.tags || [],
+        status: newsToUse.status || 'Draft',
       });
       
       console.log('Form data set:', {
-        title: news.title || '',
-        fullContent: news.fullContent || (news as any).content || '',
+        title: newsToUse.title || '',
+        fullContent: newsToUse.fullContent || (newsToUse as any).content || '',
       });
       
-      setTagInput(news.tags?.join(', ') || '');
+      setTagInput(newsToUse.tags?.join(', ') || '');
       // Set image preview with full URL for existing news
-      if (news.imageUrl) {
-        setImagePreview(getImageUrl(news.imageUrl, 'news'));
+      if (newsToUse.imageUrl) {
+        setImagePreview(getImageUrl(newsToUse.imageUrl, 'news'));
       } else {
         setImagePreview('');
       }
@@ -112,7 +149,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
       setImageFile(null);
       setClearExistingImage(false);
     }
-  }, [news, open]);
+  }, [fullNewsData, news, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,10 +196,37 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
     setClearExistingImage(true);
   };
 
+  // Show loading state while fetching full data
+  if (isLoadingFullData) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogHeader>
+            <DialogTitle>Loading Article Data...</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center justify-center py-12">
+            <div className="flex items-center space-x-2">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <span>Fetching full article content...</span>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   // If embedded (not in a dialog), render the form directly
   if (isEmbedded) {
     return (
       <div className="space-y-6">
+        {isLoadingFullData && (
+          <div className="flex items-center justify-center py-8">
+            <div className="flex items-center space-x-2">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <span>Loading full article content...</span>
+            </div>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -171,6 +235,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              disabled={isLoadingFullData}
               required
             />
           </div>
@@ -181,6 +246,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
               id="author"
               value={formData.author}
               onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+              disabled={isLoadingFullData}
               required
             />
           </div>
@@ -192,6 +258,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
             <Select
               value={formData.category}
               onValueChange={(value) => setFormData({ ...formData, category: value })}
+              disabled={isLoadingFullData}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -212,6 +279,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
               id="location"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              disabled={isLoadingFullData}
             />
           </div>
         </div>
@@ -224,6 +292,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
               value={formData.expectedAttendees}
               onChange={(e) => setFormData({ ...formData, expectedAttendees: e.target.value })}
               placeholder="e.g., 500+"
+              disabled={isLoadingFullData}
             />
           </div>
           
@@ -234,6 +303,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
               value={tagInput}
               onChange={(e) => handleTagInputChange(e.target.value)}
               placeholder="tourism, local, event"
+              disabled={isLoadingFullData}
             />
           </div>
         </div>
@@ -254,6 +324,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                   size="sm"
                   className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
                   onClick={removeImage}
+                  disabled={isLoadingFullData}
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -266,11 +337,13 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                 accept="image/*"
                 onChange={handleImageChange}
                 className="hidden"
+                disabled={isLoadingFullData}
               />
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => document.getElementById('image')?.click()}
+                disabled={isLoadingFullData}
               >
                 <Upload className="mr-2 h-4 w-4" />
                 {imagePreview ? 'Change Image' : 'Upload Image'}
@@ -287,6 +360,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
               onCheckedChange={(checked) => 
                 setFormData({ ...formData, isFeatured: checked as boolean })
               }
+              disabled={isLoadingFullData}
             />
             <Label htmlFor="isFeatured">Featured Article</Label>
           </div>
@@ -298,6 +372,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
               onCheckedChange={(checked) => 
                 setFormData({ ...formData, isTrending: checked as boolean })
               }
+              disabled={isLoadingFullData}
             />
             <Label htmlFor="isTrending">Trending Article</Label>
           </div>
@@ -311,6 +386,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
             onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
             rows={3}
             placeholder="Brief summary of the article..."
+            disabled={isLoadingFullData}
           />
         </div>
         
@@ -322,6 +398,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
             onChange={(e) => setFormData({ ...formData, fullContent: e.target.value })}
             rows={8}
             placeholder="Full article content..."
+            disabled={isLoadingFullData}
             required
           />
         </div>
@@ -331,11 +408,11 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
             type="button" 
             variant="outline" 
             onClick={() => window.history.back()}
+            disabled={isLoadingFullData}
           >
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            <Save className="mr-2 h-4 w-4" />
             {isSubmitting ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
@@ -348,7 +425,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{news ? 'Edit News Article' : 'Add News Article'}</DialogTitle>
+          <DialogTitle>{(fullNewsData || news) ? 'Edit News Article' : 'Add News Article'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -358,6 +435,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                disabled={isLoadingFullData}
                 required
               />
             </div>
@@ -368,6 +446,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                 id="author"
                 value={formData.author}
                 onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                disabled={isLoadingFullData}
                 required
               />
             </div>
@@ -379,6 +458,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
               <Select
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
+                disabled={isLoadingFullData}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -399,6 +479,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                 id="location"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                disabled={isLoadingFullData}
               />
             </div>
           </div>
@@ -411,6 +492,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                 value={formData.expectedAttendees}
                 onChange={(e) => setFormData({ ...formData, expectedAttendees: e.target.value })}
                 placeholder="e.g., 500+"
+                disabled={isLoadingFullData}
               />
             </div>
             
@@ -421,6 +503,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                 value={tagInput}
                 onChange={(e) => handleTagInputChange(e.target.value)}
                 placeholder="tourism, local, event"
+                disabled={isLoadingFullData}
               />
             </div>
           </div>
@@ -441,6 +524,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                     size="sm"
                     className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
                     onClick={removeImage}
+                    disabled={isLoadingFullData}
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -453,11 +537,13 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                   accept="image/*"
                   onChange={handleImageChange}
                   className="hidden"
+                  disabled={isLoadingFullData}
                 />
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => document.getElementById('image')?.click()}
+                  disabled={isLoadingFullData}
                 >
                   <Upload className="mr-2 h-4 w-4" />
                   {imagePreview ? 'Change Image' : 'Upload Image'}
@@ -474,6 +560,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                 onCheckedChange={(checked) => 
                   setFormData({ ...formData, isFeatured: checked as boolean })
                 }
+                disabled={isLoadingFullData}
               />
               <Label htmlFor="isFeatured">Featured Article</Label>
             </div>
@@ -485,6 +572,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
                 onCheckedChange={(checked) => 
                   setFormData({ ...formData, isTrending: checked as boolean })
                 }
+                disabled={isLoadingFullData}
               />
               <Label htmlFor="isTrending">Trending Article</Label>
             </div>
@@ -498,6 +586,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
               onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
               rows={3}
               placeholder="Brief summary of the article..."
+              disabled={isLoadingFullData}
             />
           </div>
           
@@ -509,6 +598,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
               onChange={(e) => setFormData({ ...formData, fullContent: e.target.value })}
               rows={8}
               placeholder="Full article content..."
+              disabled={isLoadingFullData}
               required
             />
           </div>
@@ -517,7 +607,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || isLoadingFullData}>
               {isSubmitting ? 'Saving...' : (news ? 'Update Article' : 'Create Article')}
             </Button>
           </div>
