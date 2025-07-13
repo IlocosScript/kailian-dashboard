@@ -162,6 +162,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
     setImageFile(null);
     setImagePreview('');
     setClearExistingImage(true);
+    setClearExistingImage(true);
   };
 
   // If embedded (not in a dialog), render the form directly
