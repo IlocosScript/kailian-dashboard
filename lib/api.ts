@@ -118,11 +118,11 @@ class ApiService {
     formData.append('isTrending', (newsData.isTrending || false).toString());
     formData.append('status', newsData.status || 'Draft');
     
-    // Add optional fields
-    if (newsData.summary) formData.append('summary', newsData.summary);
-    if (newsData.publishedDate) formData.append('publishedDate', newsData.publishedDate);
-    if (newsData.publishedTime) formData.append('publishedTime', newsData.publishedTime);
-    if (newsData.expectedAttendees) formData.append('expectedAttendees', newsData.expectedAttendees);
+    // Add optional fields only if they have non-empty values
+    if (newsData.summary && newsData.summary.trim()) formData.append('summary', newsData.summary);
+    if (newsData.publishedDate && newsData.publishedDate.trim()) formData.append('publishedDate', newsData.publishedDate);
+    if (newsData.publishedTime && newsData.publishedTime.trim()) formData.append('publishedTime', newsData.publishedTime);
+    if (newsData.expectedAttendees && newsData.expectedAttendees.trim()) formData.append('expectedAttendees', newsData.expectedAttendees);
     if (newsData.tags && newsData.tags.length > 0) {
       formData.append('tags', newsData.tags.join(','));
     }
@@ -138,19 +138,21 @@ class ApiService {
   async updateNews(id: number, newsData: Partial<NewsArticle>, imageFile?: File): Promise<ApiResponse<NewsArticle>> {
     const formData = new FormData();
     
-    // Add all fields, including empty strings to prevent backend errors
+    // Add required fields
     if (newsData.title !== undefined) formData.append('title', newsData.title);
-    if (newsData.summary !== undefined) formData.append('summary', newsData.summary);
     if (newsData.fullContent !== undefined) formData.append('fullContent', newsData.fullContent);
     if (newsData.location !== undefined) formData.append('location', newsData.location);
     if (newsData.category !== undefined) formData.append('category', newsData.category);
     if (newsData.author !== undefined) formData.append('author', newsData.author);
-    if (newsData.publishedDate !== undefined) formData.append('publishedDate', newsData.publishedDate);
-    if (newsData.publishedTime !== undefined) formData.append('publishedTime', newsData.publishedTime);
-    if (newsData.expectedAttendees !== undefined) formData.append('expectedAttendees', newsData.expectedAttendees);
     if (newsData.isFeatured !== undefined) formData.append('isFeatured', newsData.isFeatured.toString());
     if (newsData.isTrending !== undefined) formData.append('isTrending', newsData.isTrending.toString());
     if (newsData.status !== undefined) formData.append('status', newsData.status);
+    
+    // Add optional fields only if they have non-empty values
+    if (newsData.summary !== undefined && newsData.summary.trim()) formData.append('summary', newsData.summary);
+    if (newsData.publishedDate !== undefined && newsData.publishedDate.trim()) formData.append('publishedDate', newsData.publishedDate);
+    if (newsData.publishedTime !== undefined && newsData.publishedTime.trim()) formData.append('publishedTime', newsData.publishedTime);
+    if (newsData.expectedAttendees !== undefined && newsData.expectedAttendees.trim()) formData.append('expectedAttendees', newsData.expectedAttendees);
     if (newsData.tags !== undefined) {
       formData.append('tags', (newsData.tags || []).join(','));
     }
