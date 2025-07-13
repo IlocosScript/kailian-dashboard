@@ -219,7 +219,6 @@ export default function NewsTable({ news, onEdit, onDelete, onPublish, onUnpubli
                         Edit
                       </DropdownMenuItem>
                       {item.status !== 'Published' && (
-                        <DropdownMenuItem onClick={() => onPublish(item.id)}>
                         <DropdownMenuItem onClick={() => openConfirmModal('publish', item)}>
                           <Send className="mr-2 h-4 w-4" />
                           Publish
