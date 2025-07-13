@@ -135,7 +135,7 @@ class ApiService {
     return this.requestWithFormData<NewsArticle>('/api/news/with-image', 'POST', formData);
   }
 
-  async updateNews(id: number, newsData: Partial<NewsArticle>, imageFile?: File): Promise<ApiResponse<NewsArticle>> {
+  async updateNews(id: number, newsData: Partial<NewsArticle>, imageFile?: File, clearExistingImage?: boolean): Promise<ApiResponse<NewsArticle>> {
     const formData = new FormData();
     
     // Add required fields
@@ -160,6 +160,11 @@ class ApiService {
     // Add image file if provided
     if (imageFile) {
       formData.append('image', imageFile);
+    }
+    
+    // Add clearImage flag if image should be removed
+    if (clearExistingImage) {
+      formData.append('clearImage', 'true');
     }
     
     return this.requestWithFormData<NewsArticle>(`/api/news/${id}/with-image`, 'PUT', formData);

@@ -387,9 +387,9 @@ export default function ViewNewsPage() {
         news={news}
         open={editModalOpen}
         onOpenChange={setEditModalOpen}
-        onSubmit={async (newsData, imageFile) => {
+        onSubmit={async (newsData, imageFile, clearExistingImage) => {
           try {
-            const response = await apiService.updateNews(news.id, newsData, imageFile);
+            const response = await apiService.updateNews(news.id, newsData, imageFile, clearExistingImage);
             if (response.success) {
               await fetchNews(); // Refresh the news data
               setEditModalOpen(false);

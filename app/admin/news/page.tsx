@@ -108,13 +108,13 @@ export default function NewsPage() {
     });
   };
 
-  const handleSubmitNews = async (newsData: Partial<NewsArticle>, imageFile?: File) => {
+  const handleSubmitNews = async (newsData: Partial<NewsArticle>, imageFile?: File, clearExistingImage?: boolean) => {
     try {
       let response;
       
       if (selectedNews) {
         // Update existing news
-        response = await apiService.updateNews(selectedNews.id, newsData, imageFile);
+        response = await apiService.updateNews(selectedNews.id, newsData, imageFile, clearExistingImage);
         if (response.success) {
           setNews(news.map(item => 
             item.id === selectedNews.id 

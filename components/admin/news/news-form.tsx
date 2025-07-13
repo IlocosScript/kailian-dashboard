@@ -27,7 +27,7 @@ interface NewsFormProps {
   news?: NewsArticle | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (news: Partial<NewsArticle>, imageFile?: File) => void;
+  onSubmit: (news: Partial<NewsArticle>, imageFile?: File, clearExistingImage?: boolean) => void;
 }
 
 export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFormProps) {
@@ -52,6 +52,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
   const [tagInput, setTagInput] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [clearExistingImage, setClearExistingImage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -95,6 +96,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         setImagePreview('');
       }
       setImageFile(null);
+      setClearExistingImage(false);
     } else {
       setFormData({
         title: '',
@@ -114,6 +116,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
       setTagInput('');
       setImagePreview('');
       setImageFile(null);
+      setClearExistingImage(false);
     }
   }, [news, open]);
 
@@ -129,7 +132,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
     await onSubmit({
       ...formData,
       tags,
-    }, imageFile || undefined);
+    }, imageFile || undefined, clearExistingImage);
     
     setIsSubmitting(false);
   };
@@ -158,6 +161,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
   const removeImage = () => {
     setImageFile(null);
     setImagePreview('');
+    setClearExistingImage(true);
   };
 
   // If embedded (not in a dialog), render the form directly
