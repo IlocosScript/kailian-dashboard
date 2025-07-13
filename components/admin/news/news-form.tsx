@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { getImageUrl } from '@/lib/api';
 import { Upload, X } from 'lucide-react';
 
 interface NewsFormProps {
@@ -71,7 +72,12 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         status: news.status || 'Draft',
       });
       setTagInput(news.tags?.join(', ') || '');
-      setImagePreview(news.imageUrl || '');
+      // Set image preview with full URL for existing news
+      if (news.imageUrl) {
+        setImagePreview(getImageUrl(news.imageUrl, 'news'));
+      } else {
+        setImagePreview('');
+      }
       setImageFile(null);
     } else {
       setFormData({
@@ -141,7 +147,8 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
   // If embedded (not in a dialog), render the form directly
   if (isEmbedded) {
     return (
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="title">Title *</Label>
@@ -327,12 +334,20 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         </div>
         
         <div className="flex justify-end space-x-2 pt-4">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => window.history.back()}
+          >
+            Cancel
+          </Button>
           <Button type="submit" disabled={isSubmitting}>
             <Save className="mr-2 h-4 w-4" />
             {isSubmitting ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
-      </form>
+        </form>
+      </div>
     );
   }
 
