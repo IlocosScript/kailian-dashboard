@@ -249,8 +249,8 @@ export default function ViewTouristSpotPage() {
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
-                <Badge variant={spot.isActive ? 'default' : 'secondary'}>
-                  {spot.isActive ? 'Active' : 'Inactive'}
+                <Badge variant={spot.isActive === true ? 'default' : 'secondary'}>
+                  {spot.isActive === true ? 'Active' : 'Inactive'}
                 </Badge>
               </div>
               <CardTitle className="text-3xl">{spot.name}</CardTitle>

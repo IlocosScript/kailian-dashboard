@@ -348,18 +348,6 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
             />
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="isActive"
-              checked={formData.isActive}
-              onCheckedChange={(checked) => 
-                setFormData({ ...formData, isActive: checked as boolean })
-              }
-              disabled={isLoadingFullData}
-            />
-            <Label htmlFor="isActive">Active (visible to public)</Label>
-          </div>
-          
           <div className="space-y-2">
             <Label htmlFor="description">Description *</Label>
             <Textarea

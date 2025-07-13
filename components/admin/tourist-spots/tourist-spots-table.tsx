@@ -230,8 +230,8 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete, onAc
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={spot.isActive ? 'default' : 'secondary'}>
-                    {spot.isActive ? 'Active' : 'Inactive'}
+                  <Badge variant={spot.isActive === true ? 'default' : 'secondary'}>
+                    {spot.isActive === true ? 'Active' : 'Inactive'}
                   </Badge>
                 </TableCell>
                 <TableCell>{spot.createdAt ? formatDate(spot.createdAt) : 'Unknown'}</TableCell>
