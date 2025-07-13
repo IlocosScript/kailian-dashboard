@@ -31,6 +31,31 @@ import type {
   TouristSpot,
 } from '@/types';
 
+// Re-export types for components
+export type NewsArticle = News;
+export type { TouristSpot };
+
+// News categories constant
+export const NEWS_CATEGORIES = [
+  'Festival',
+  'Tourism',
+  'Local Event',
+  'Government',
+  'Community',
+  'Business',
+  'Culture',
+  'Sports',
+  'Education',
+  'Health'
+];
+
+// Image URL utility function
+export const getImageUrl = (imagePath: string, type: 'news' | 'tourist-spots'): string => {
+  // For mock data, the imagePath is already a full URL from Pexels
+  // In a real implementation, this would construct the proper URL based on type and path
+  return imagePath;
+};
+
 // API Response types
 export interface ApiResponse<T> {
   data: T;

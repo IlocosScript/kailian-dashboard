@@ -24,9 +24,6 @@ export interface TouristSpot {
   createdAt: string;
 }
 
-// Re-export API types for consistency
-export type { NewsArticle, TouristSpot as ApiTouristSpot } from '@/lib/api';
-
 // New data types based on DTOs
 export interface User {
   id: string;
