@@ -314,10 +314,11 @@ class ApiService {
     if (spotData.name) formData.append('name', spotData.name);
     if (spotData.description) formData.append('description', spotData.description);
     if (spotData.location) formData.append('location', spotData.location);
+    // Address is required by backend, always send it (empty string if not provided)
+    formData.append('address', spotData.address || '');
     formData.append('isActive', (spotData.isActive !== false).toString());
     
     // Add optional fields only if they have non-empty values
-    if (spotData.address && spotData.address.trim()) formData.append('address', spotData.address);
     if (spotData.contactNumber && spotData.contactNumber.trim()) formData.append('contactNumber', spotData.contactNumber);
     if (spotData.email && spotData.email.trim()) formData.append('email', spotData.email);
     if (spotData.website && spotData.website.trim()) formData.append('website', spotData.website);
@@ -342,10 +343,11 @@ class ApiService {
     formData.append('name', spotData.name || '');
     formData.append('description', spotData.description || '');
     formData.append('location', spotData.location || '');
+    // Address is required by backend, always send it (empty string if not provided)
+    formData.append('address', spotData.address || '');
     formData.append('isActive', (spotData.isActive !== false).toString());
     
     // Add optional fields - always append to explicitly communicate their state
-    formData.append('address', spotData.address || '');
     formData.append('contactNumber', spotData.contactNumber || '');
     formData.append('email', spotData.email || '');
     formData.append('website', spotData.website || '');
