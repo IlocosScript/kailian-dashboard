@@ -171,7 +171,7 @@ export default function ViewNewsPage() {
 
           <div className="bg-gray-50 rounded-lg p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Author & Publication Info */}
+              {/* Publication Info */}
               <div className="space-y-3">
                 <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">Publication</h4>
                 <div className="space-y-2">
@@ -254,3 +254,4 @@ export default function ViewNewsPage() {
     </div>
   );
 }
+</parameter>
