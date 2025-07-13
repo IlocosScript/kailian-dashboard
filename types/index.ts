@@ -1,3 +1,4 @@
+// Legacy types for backward compatibility
 export interface News {
   id: string;
   title: string;
@@ -22,3 +23,6 @@ export interface TouristSpot {
   };
   createdAt: string;
 }
+
+// Re-export API types for consistency
+export type { NewsArticle, TouristSpot as ApiTouristSpot } from '@/lib/api';
