@@ -138,15 +138,14 @@ class ApiService {
   async updateNews(id: number, newsData: Partial<NewsArticle>, imageFile?: File, clearExistingImage?: boolean): Promise<ApiResponse<NewsArticle>> {
     const formData = new FormData();
     
-    // Add required fields
-    if (newsData.title !== undefined) formData.append('title', newsData.title);
-    if (newsData.fullContent !== undefined) formData.append('fullContent', newsData.fullContent);
-    if (newsData.location !== undefined) formData.append('location', newsData.location);
-    if (newsData.category !== undefined) formData.append('category', newsData.category);
-    if (newsData.author !== undefined) formData.append('author', newsData.author);
-    if (newsData.isFeatured !== undefined) formData.append('isFeatured', newsData.isFeatured.toString());
-    if (newsData.isTrending !== undefined) formData.append('isTrending', newsData.isTrending.toString());
-    if (newsData.status !== undefined) formData.append('status', newsData.status);
+    // Add required fields - these must always be present
+    formData.append('title', newsData.title || '');
+    formData.append('fullContent', newsData.fullContent || '');
+    formData.append('location', newsData.location || '');
+    formData.append('category', newsData.category || 'Festival');
+    formData.append('author', newsData.author || '');
+    formData.append('isFeatured', (newsData.isFeatured || false).toString());
+    formData.append('isTrending', (newsData.isTrending || false).toString());
     
     // Add optional fields only if they have non-empty values
     if (newsData.summary !== undefined && newsData.summary.trim()) formData.append('summary', newsData.summary);
