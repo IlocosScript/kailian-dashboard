@@ -314,18 +314,17 @@ class ApiService {
     if (spotData.name) formData.append('name', spotData.name);
     if (spotData.description) formData.append('description', spotData.description);
     if (spotData.location) formData.append('location', spotData.location);
-    // Address is required by backend, always send it (empty string if not provided)
-    formData.append('address', spotData.address || '');
+    if (spotData.address) formData.append('address', spotData.address);
     formData.append('isActive', (spotData.isActive !== false).toString());
     
     // Add optional fields only if they have non-empty values
-    if (spotData.contactNumber && spotData.contactNumber.trim()) formData.append('contactNumber', spotData.contactNumber);
-    if (spotData.email && spotData.email.trim()) formData.append('email', spotData.email);
-    if (spotData.website && spotData.website.trim()) formData.append('website', spotData.website);
-    if (spotData.operatingHours && spotData.operatingHours.trim()) formData.append('operatingHours', spotData.operatingHours);
-    if (spotData.entranceFee && spotData.entranceFee.trim()) formData.append('entranceFee', spotData.entranceFee);
-    if (spotData.tags && spotData.tags.length > 0) {
-      formData.append('tags', spotData.tags.join(','));
+    if (spotData.rating !== undefined) formData.append('rating', spotData.rating.toString());
+    if (spotData.coordinates && spotData.coordinates.trim()) formData.append('coordinates', spotData.coordinates);
+    if (spotData.openingHours && spotData.openingHours.trim()) formData.append('openingHours', spotData.openingHours);
+    if (spotData.entryFee && spotData.entryFee.trim()) formData.append('entryFee', spotData.entryFee);
+    if (spotData.travelTime && spotData.travelTime.trim()) formData.append('travelTime', spotData.travelTime);
+    if (spotData.highlights && spotData.highlights.length > 0) {
+      formData.append('highlights', spotData.highlights.join(','));
     }
     
     // Add image file if provided
@@ -343,18 +342,17 @@ class ApiService {
     formData.append('name', spotData.name || '');
     formData.append('description', spotData.description || '');
     formData.append('location', spotData.location || '');
-    // Address is required by backend, always send it (empty string if not provided)
-    formData.append('address', spotData.address || '');
+    formData.append('address', newsData.address || '');
     formData.append('isActive', (spotData.isActive !== false).toString());
     
-    // Add optional fields - always append to explicitly communicate their state
-    formData.append('contactNumber', spotData.contactNumber || '');
-    formData.append('email', spotData.email || '');
-    formData.append('website', spotData.website || '');
-    formData.append('operatingHours', spotData.operatingHours || '');
-    formData.append('entranceFee', spotData.entranceFee || '');
-    if (spotData.tags !== undefined) {
-      formData.append('tags', (spotData.tags || []).join(','));
+    // Add optional fields
+    if (newsData.rating !== undefined) formData.append('rating', newsData.rating.toString());
+    formData.append('coordinates', newsData.coordinates || '');
+    formData.append('openingHours', newsData.openingHours || '');
+    formData.append('entryFee', newsData.entryFee || '');
+    formData.append('travelTime', newsData.travelTime || '');
+    if (newsData.highlights !== undefined) {
+      formData.append('highlights', (newsData.highlights || []).join(','));
     }
     
     // Add image file if provided
@@ -481,7 +479,14 @@ export interface TouristSpot {
   rating: number;
   travelTime?: string;
   viewCount: number;
+  coordinates?: string;
+  openingHours?: string;
+  entryFee?: string;
   highlights: string[];
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  
   // Legacy fields for backward compatibility
   contactNumber?: string;
   email?: string;
@@ -489,9 +494,6 @@ export interface TouristSpot {
   operatingHours?: string;
   entranceFee?: string;
   tags?: string[];
-  isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 // Export singleton instance

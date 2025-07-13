@@ -32,16 +32,16 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
     description: '',
     location: '',
     address: '',
-    contactNumber: '',
-    email: '',
-    website: '',
-    operatingHours: '',
-    entranceFee: '',
+    rating: 5.0,
+    coordinates: '',
+    openingHours: '',
+    entryFee: '',
+    highlights: [] as string[],
+    travelTime: '',
     isActive: true,
-    tags: [] as string[],
   });
 
-  const [tagsInput, setTagsInput] = useState('');
+  const [highlightsInput, setHighlightsInput] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [clearExistingImage, setClearExistingImage] = useState(false);
@@ -90,16 +90,16 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
         description: spotToUse.description || '',
         location: spotToUse.location || '',
         address: spotToUse.address || '',
-        contactNumber: spotToUse.contactNumber || '',
-        email: spotToUse.email || '',
-        website: spotToUse.website || '',
-        operatingHours: spotToUse.operatingHours || spotToUse.openingHours || '',
-        entranceFee: spotToUse.entranceFee || spotToUse.entryFee || '',
+        rating: spotToUse.rating || 5.0,
+        coordinates: spotToUse.coordinates || '',
+        openingHours: spotToUse.openingHours || spotToUse.operatingHours || '',
+        entryFee: spotToUse.entryFee || spotToUse.entranceFee || '',
+        highlights: spotToUse.highlights || spotToUse.tags || [],
+        travelTime: spotToUse.travelTime || '',
         isActive: spotToUse.isActive === true,
-        tags: spotToUse.tags || spotToUse.highlights || [],
       });
       
-      setTagsInput((spotToUse.tags || spotToUse.highlights || []).join(', ') || '');
+      setHighlightsInput((spotToUse.highlights || spotToUse.tags || []).join(', ') || '');
       // Set image preview with full URL for existing spots
       if (spotToUse.imageUrl) {
         setImagePreview(getImageUrl(spotToUse.imageUrl, 'tourist-spots'));
@@ -114,15 +114,15 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
         description: '',
         location: '',
         address: '',
-        contactNumber: '',
-        email: '',
-        website: '',
-        operatingHours: '',
-        entranceFee: '',
+        rating: 5.0,
+        coordinates: '',
+        openingHours: '',
+        entryFee: '',
+        highlights: [],
+        travelTime: '',
         isActive: true,
-        tags: [],
       });
-      setTagsInput('');
+      setHighlightsInput('');
       setImagePreview('');
       setImageFile(null);
       setClearExistingImage(false);
@@ -133,26 +133,26 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
     e.preventDefault();
     setIsSubmitting(true);
     
-    const tags = tagsInput
+    const highlights = highlightsInput
       .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
+      .map(highlight => highlight.trim())
+      .filter(highlight => highlight.length > 0);
 
     await onSubmit({
       ...formData,
-      tags,
+      highlights,
     }, imageFile || undefined, clearExistingImage);
     
     setIsSubmitting(false);
   };
 
-  const handleTagsInputChange = (value: string) => {
-    setTagsInput(value);
-    const tags = value
+  const handleHighlightsInputChange = (value: string) => {
+    setHighlightsInput(value);
+    const highlights = value
       .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
-    setFormData({ ...formData, tags });
+      .map(highlight => highlight.trim())
+      .filter(highlight => highlight.length > 0);
+    setFormData({ ...formData, highlights });
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,36 +224,38 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="address">Address</Label>
+            <Label htmlFor="address">Address *</Label>
             <Input
               id="address"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               disabled={isLoadingFullData}
-             required
+              required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="contactNumber">Contact Number</Label>
+              <Label htmlFor="rating">Rating (0-5)</Label>
               <Input
-                id="contactNumber"
-                value={formData.contactNumber}
-                onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
-                placeholder="+63 912 345 6789"
+                id="rating"
+                type="number"
+                min="0"
+                max="5"
+                step="0.1"
+                value={formData.rating}
+                onChange={(e) => setFormData({ ...formData, rating: parseFloat(e.target.value) || 5.0 })}
                 disabled={isLoadingFullData}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="coordinates">GPS Coordinates</Label>
               <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="info@touristspot.com"
+                id="coordinates"
+                value={formData.coordinates}
+                onChange={(e) => setFormData({ ...formData, coordinates: e.target.value })}
+                placeholder="14.5995,120.9842"
                 disabled={isLoadingFullData}
               />
             </div>
@@ -261,35 +263,35 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="website">Website</Label>
+              <Label htmlFor="openingHours">Opening Hours</Label>
               <Input
-                id="website"
-                value={formData.website}
-                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                placeholder="https://www.touristspot.com"
+                id="openingHours"
+                value={formData.openingHours}
+                onChange={(e) => setFormData({ ...formData, openingHours: e.target.value })}
+                placeholder="9:00 AM - 6:00 PM"
                 disabled={isLoadingFullData}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="operatingHours">Operating Hours</Label>
+              <Label htmlFor="entryFee">Entry Fee</Label>
               <Input
-                id="operatingHours"
-                value={formData.operatingHours}
-                onChange={(e) => setFormData({ ...formData, operatingHours: e.target.value })}
-                placeholder="6:00 AM - 10:00 PM"
+                id="entryFee"
+                value={formData.entryFee}
+                onChange={(e) => setFormData({ ...formData, entryFee: e.target.value })}
+                placeholder="Free or ₱50"
                 disabled={isLoadingFullData}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="entranceFee">Entrance Fee</Label>
+            <Label htmlFor="travelTime">Travel Time</Label>
             <Input
-              id="entranceFee"
-              value={formData.entranceFee}
-              onChange={(e) => setFormData({ ...formData, entranceFee: e.target.value })}
-              placeholder="Free or ₱50"
+              id="travelTime"
+              value={formData.travelTime}
+              onChange={(e) => setFormData({ ...formData, travelTime: e.target.value })}
+              placeholder="30 minutes from city center"
               disabled={isLoadingFullData}
             />
           </div>
@@ -339,12 +341,12 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="tags">Tags (comma-separated)</Label>
+            <Label htmlFor="highlights">Highlights (comma-separated)</Label>
             <Input
-              id="tags"
-              value={tagsInput}
-              onChange={(e) => handleTagsInputChange(e.target.value)}
-              placeholder="beach, hiking, family-friendly"
+              id="highlights"
+              value={highlightsInput}
+              onChange={(e) => handleHighlightsInputChange(e.target.value)}
+              placeholder="Scenic View, Historical Site, Family Friendly"
               disabled={isLoadingFullData}
             />
           </div>
