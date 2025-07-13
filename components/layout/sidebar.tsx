@@ -30,6 +30,16 @@ const navigation = [
     href: '/admin',
     icon: Home,
   },
+    {
+    name: 'News',
+    href: '/admin/news',
+    icon: Newspaper,
+  },
+  {
+    name: 'Tourist Spots',
+    href: '/admin/tourist-spots',
+    icon: MapPin,
+  },
   {
     name: 'Users',
     href: '/admin/users',
@@ -85,16 +95,7 @@ const navigation = [
     href: '/admin/feedback',
     icon: MessageSquare,
   },
-  {
-    name: 'News',
-    href: '/admin/news',
-    icon: Newspaper,
-  },
-  {
-    name: 'Tourist Spots',
-    href: '/admin/tourist-spots',
-    icon: MapPin,
-  },
+
 ];
 
 export default function Sidebar() {
