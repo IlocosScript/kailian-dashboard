@@ -25,8 +25,8 @@ export default function LoginPage() {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Spoofed authentication - accept any non-empty credentials
-    if (formData.username.trim() && formData.password.trim()) {
+    // Simple authentication with specific credentials
+    if (formData.username === 'admin' && formData.password === 'admin123') {
       // Store auth state in localStorage (spoofed)
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('adminUser', JSON.stringify({
@@ -43,7 +43,7 @@ export default function LoginPage() {
       router.push('/admin');
     } else {
       showToast.error('Login failed', {
-        description: 'Please enter both username and password.',
+        description: 'Invalid username or password. Please try again.',
       });
     }
 
@@ -122,9 +122,10 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-2">Demo Credentials:</p>
+              <p className="text-sm text-gray-600 mb-2">Login Credentials:</p>
               <p className="text-xs text-gray-500">
-                Use any username and password to login
+                Username: admin<br />
+                Password: admin123
               </p>
             </div>
           </CardContent>
