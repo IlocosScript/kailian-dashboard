@@ -138,21 +138,21 @@ class ApiService {
   async updateNews(id: number, newsData: Partial<NewsArticle>, imageFile?: File): Promise<ApiResponse<NewsArticle>> {
     const formData = new FormData();
     
-    // Add all fields that are provided (all optional for updates)
-    if (newsData.title) formData.append('title', newsData.title);
-    if (newsData.summary) formData.append('summary', newsData.summary);
-    if (newsData.fullContent) formData.append('fullContent', newsData.fullContent);
-    if (newsData.location) formData.append('location', newsData.location);
-    if (newsData.category) formData.append('category', newsData.category);
-    if (newsData.author) formData.append('author', newsData.author);
-    if (newsData.publishedDate) formData.append('publishedDate', newsData.publishedDate);
-    if (newsData.publishedTime) formData.append('publishedTime', newsData.publishedTime);
-    if (newsData.expectedAttendees) formData.append('expectedAttendees', newsData.expectedAttendees);
+    // Add all fields, including empty strings to prevent backend errors
+    if (newsData.title !== undefined) formData.append('title', newsData.title);
+    if (newsData.summary !== undefined) formData.append('summary', newsData.summary);
+    if (newsData.fullContent !== undefined) formData.append('fullContent', newsData.fullContent);
+    if (newsData.location !== undefined) formData.append('location', newsData.location);
+    if (newsData.category !== undefined) formData.append('category', newsData.category);
+    if (newsData.author !== undefined) formData.append('author', newsData.author);
+    if (newsData.publishedDate !== undefined) formData.append('publishedDate', newsData.publishedDate);
+    if (newsData.publishedTime !== undefined) formData.append('publishedTime', newsData.publishedTime);
+    if (newsData.expectedAttendees !== undefined) formData.append('expectedAttendees', newsData.expectedAttendees);
     if (newsData.isFeatured !== undefined) formData.append('isFeatured', newsData.isFeatured.toString());
     if (newsData.isTrending !== undefined) formData.append('isTrending', newsData.isTrending.toString());
-    if (newsData.status) formData.append('status', newsData.status);
-    if (newsData.tags && newsData.tags.length > 0) {
-      formData.append('tags', JSON.stringify(newsData.tags));
+    if (newsData.status !== undefined) formData.append('status', newsData.status);
+    if (newsData.tags !== undefined) {
+      formData.append('tags', JSON.stringify(newsData.tags || []));
     }
     
     // Add image file if provided
