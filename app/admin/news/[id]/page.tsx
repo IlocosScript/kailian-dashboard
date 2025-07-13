@@ -401,7 +401,7 @@ export default function ViewNewsPage() {
             }
           } catch (err) {
             showToast.error('Failed to update news article', {
-              description: 'Please try again or contact support if the problem persists.',
+              description: err instanceof Error ? err.message : 'Please try again or contact support if the problem persists.',
             });
             console.error('Error updating news:', err);
           }
