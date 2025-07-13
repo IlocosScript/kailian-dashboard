@@ -123,11 +123,9 @@ export default function ViewTouristSpotPage() {
     try {
       const response = await apiService.getTouristSpotById(spotId);
       if (response.success) {
-      if (response.success) {
         setSpot(response.data);
       } else {
         setError(response.message);
-      }
       }
     } catch (err) {
       console.error('Error refreshing tourist spot data:', err);
