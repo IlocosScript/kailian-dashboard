@@ -7,6 +7,7 @@ import { Plus, RefreshCw } from 'lucide-react';
 import { apiService, NewsArticle } from '@/lib/api';
 import NewsTable from '@/components/admin/news/news-table';
 import NewsForm from '@/components/admin/news/news-form';
+import { showToast } from '@/lib/toast';
 
 export default function NewsPage() {
   const [news, setNews] = useState<NewsArticle[]>([]);
@@ -49,61 +50,62 @@ export default function NewsPage() {
   };
 
   const handleDeleteNews = (id: number) => {
-    const deleteNews = async () => {
+    // This function is now handled by the confirmation modal in NewsTable
+    return new Promise<void>(async (resolve, reject) => {
       try {
         const response = await apiService.deleteNews(id);
         if (response.success) {
           setNews(news.filter(item => item.id !== id));
+          resolve();
         } else {
-          setError(response.message || 'Failed to delete news');
+          reject(new Error(response.message || 'Failed to delete news'));
         }
       } catch (err) {
-        setError('Failed to delete news');
-        console.error('Error deleting news:', err);
+        reject(err);
       }
-    };
-    
-    if (confirm('Are you sure you want to delete this news article?')) {
-      deleteNews();
-    }
+    });
   };
 
   const handlePublishNews = async (id: number) => {
-    try {
-      const response = await apiService.publishNews(id);
-      if (response.success) {
-        // Update the news item in the list with the new status
-        setNews(news.map(item => 
-          item.id === id 
-            ? { ...item, status: 'Published' }
-            : item
-        ));
-      } else {
-        setError(response.message || 'Failed to publish news');
+    // This function is now handled by the confirmation modal in NewsTable
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        const response = await apiService.publishNews(id);
+        if (response.success) {
+          setNews(news.map(item => 
+            item.id === id 
+              ? { ...item, status: 'Published' }
+              : item
+          ));
+          resolve();
+        } else {
+          reject(new Error(response.message || 'Failed to publish news'));
+        }
+      } catch (err) {
+        reject(err);
       }
-    } catch (err) {
-      setError('Failed to publish news');
-      console.error('Error publishing news:', err);
-    }
+    });
   };
 
   const handleUnpublishNews = async (id: number) => {
-    try {
-      const response = await apiService.unpublishNews(id);
-      if (response.success) {
-        // Update the news item in the list with the new status
-        setNews(news.map(item => 
-          item.id === id 
-            ? { ...item, status: 'Draft', publishedDate: '', publishedTime: '' }
-            : item
-        ));
-      } else {
-        setError(response.message || 'Failed to unpublish news');
+    // This function is now handled by the confirmation modal in NewsTable
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        const response = await apiService.unpublishNews(id);
+        if (response.success) {
+          setNews(news.map(item => 
+            item.id === id 
+              ? { ...item, status: 'Draft', publishedDate: '', publishedTime: '' }
+              : item
+          ));
+          resolve();
+        } else {
+          reject(new Error(response.message || 'Failed to unpublish news'));
+        }
+      } catch (err) {
+        reject(err);
       }
-    } catch (err) {
-      setError('Failed to unpublish news');
-      console.error('Error unpublishing news:', err);
-    }
+    });
   };
 
   const handleSubmitNews = async (newsData: Partial<NewsArticle>, imageFile?: File) => {
@@ -130,11 +132,22 @@ export default function NewsPage() {
       
       if (response.success) {
         setFormOpen(false);
+        if (selectedNews) {
+          showToast.success('News article updated successfully');
+        } else {
+          showToast.success('News article created successfully');
+        }
       } else {
-        setError(response.message || 'Failed to save news');
+        const action = selectedNews ? 'update' : 'create';
+        showToast.error(`Failed to ${action} news article`, {
+          description: response.message || 'Please try again or contact support if the problem persists.',
+        });
       }
     } catch (err) {
-      setError('Failed to save news');
+      const action = selectedNews ? 'update' : 'create';
+      showToast.error(`Failed to ${action} news article`, {
+        description: 'Please try again or contact support if the problem persists.',
+      });
       console.error('Error saving news:', err);
     }
   };

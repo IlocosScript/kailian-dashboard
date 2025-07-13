@@ -22,6 +22,8 @@ import {
   Archive
 } from 'lucide-react';
 import { apiService, NewsArticle, getImageUrl } from '@/lib/api';
+import ConfirmationModal from '@/components/ui/confirmation-modal';
+import { showToast } from '@/lib/toast';
 
 export default function ViewNewsPage() {
   const params = useParams();
@@ -31,6 +33,15 @@ export default function ViewNewsPage() {
   const [error, setError] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [unpublishing, setUnpublishing] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    type: 'publish' | 'unpublish';
+    loading: boolean;
+  }>({
+    open: false,
+    type: 'publish',
+    loading: false,
+  });
 
   const newsId = params.id as string;
 
@@ -60,48 +71,75 @@ export default function ViewNewsPage() {
   }, [newsId]);
 
   const handlePublish = async () => {
-    if (!news) return;
-    
-    try {
-      setPublishing(true);
-      const response = await apiService.publishNews(news.id);
-      
-      if (response.success) {
-        // Update the news status locally
-        setNews({ ...news, status: 'Published' });
-      } else {
-        setError(response.message || 'Failed to publish news');
-      }
-    } catch (err) {
-      setError('Failed to publish news');
-      console.error('Error publishing news:', err);
-    } finally {
-      setPublishing(false);
-    }
+    setConfirmModal({
+      open: true,
+      type: 'publish',
+      loading: false,
+    });
   };
   const formatDate = (dateString?: string) => {
   const handleUnpublish = async () => {
+    setConfirmModal({
+      open: true,
+      type: 'unpublish',
+      loading: false,
+    });
+  };
+
+  const handleConfirmAction = async () => {
     if (!news) return;
-    
-    if (!confirm('Are you sure you want to unpublish this article? This will make it invisible to public users.')) {
-      return;
-    }
-    
+
+    setConfirmModal(prev => ({ ...prev, loading: true }));
+
     try {
-      setUnpublishing(true);
-      const response = await apiService.unpublishNews(news.id);
-      
-      if (response.success) {
-        // Update the news status locally and clear published date/time
-        setNews({ ...news, status: 'Draft', publishedDate: '', publishedTime: '' });
+      if (confirmModal.type === 'publish') {
+        const response = await apiService.publishNews(news.id);
+        if (response.success) {
+          setNews({ ...news, status: 'Published' });
+          showToast.success('News article published successfully');
+        } else {
+          throw new Error(response.message || 'Failed to publish news');
+        }
       } else {
-        setError(response.message || 'Failed to unpublish news');
+        const response = await apiService.unpublishNews(news.id);
+        if (response.success) {
+          setNews({ ...news, status: 'Draft', publishedDate: '', publishedTime: '' });
+          showToast.success('News article unpublished successfully');
+        } else {
+          throw new Error(response.message || 'Failed to unpublish news');
+        }
       }
+      setConfirmModal({ open: false, type: 'publish', loading: false });
     } catch (err) {
-      setError('Failed to unpublish news');
-      console.error('Error unpublishing news:', err);
+      const action = confirmModal.type === 'publish' ? 'publish' : 'unpublish';
+      showToast.error(`Failed to ${action} article`, {
+        description: 'Please try again or contact support if the problem persists.',
+      });
+      setConfirmModal(prev => ({ ...prev, loading: false }));
+      console.error(`Error ${action}ing news:`, err);
+    }
+  };
+
+  const getModalConfig = () => {
+    const { type } = confirmModal;
+    
+    if (type === 'publish') {
+      return {
+        title: 'Publish News Article',
+        description: `Are you sure you want to publish "${news?.title}"? This will make it visible to all users.`,
+        confirmText: 'Publish',
+        variant: 'success' as const,
+        icon: 'publish' as const,
+      };
+    } else {
+      return {
+        title: 'Unpublish News Article',
+        description: `Are you sure you want to unpublish "${news?.title}"? This will make it invisible to public users.`,
+        confirmText: 'Unpublish',
+        variant: 'warning' as const,
+        icon: 'unpublish' as const,
+      };
     } finally {
-      setUnpublishing(false);
     }
   };
 
@@ -185,23 +223,21 @@ export default function ViewNewsPage() {
         <div className="flex space-x-2">
           {news.status !== 'Published' && (
             <Button 
-              onClick={handlePublish} 
-              disabled={publishing}
+              onClick={handlePublish}
               className="bg-green-600 hover:bg-green-700"
             >
               <Send className="mr-2 h-4 w-4" />
-              {publishing ? 'Publishing...' : 'Publish'}
+              Publish
             </Button>
           )}
           {news.status === 'Published' && (
             <Button 
-              onClick={handleUnpublish} 
-              disabled={unpublishing}
+              onClick={handleUnpublish}
               variant="outline"
               className="border-orange-500 text-orange-600 hover:bg-orange-50"
             >
               <Archive className="mr-2 h-4 w-4" />
-              {unpublishing ? 'Unpublishing...' : 'Unpublish'}
+              Unpublish
             </Button>
           )}
           <Button onClick={() => router.push(`/admin/news/${newsId}/edit`)}>
@@ -323,6 +359,14 @@ export default function ViewNewsPage() {
 
         </CardContent>
       </Card>
+
+      <ConfirmationModal
+        open={confirmModal.open}
+        onOpenChange={(open) => setConfirmModal(prev => ({ ...prev, open }))}
+        onConfirm={handleConfirmAction}
+        loading={confirmModal.loading}
+        {...getModalConfig()}
+      />
     </div>
   );
 }
