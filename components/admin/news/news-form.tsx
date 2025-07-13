@@ -76,7 +76,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
       setFormData({
         title: news.title || '',
         summary: news.summary || '',
-        fullContent: news.fullContent || '',
+        fullContent: news.fullContent || news.content || '',
         author: news.author || '',
         category: news.category || 'Festival',
         location: news.location || '',
