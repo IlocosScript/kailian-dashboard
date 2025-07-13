@@ -562,6 +562,7 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Saving...' : (news ? 'Update Article' : 'Create Article')}
             </Button>
           </div>
