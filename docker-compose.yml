@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  kailian-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kailian-dashboard
+    ports:
+      - "9040:9040"
+    environment:
+      - NODE_ENV=production
+      - PORT=9040
+      - HOSTNAME=0.0.0.0
+      - NEXT_TELEMETRY_DISABLED=1
+      # API URL - can be overridden by creating a .env file
+      - NEXT_PUBLIC_API_URL=https://alisto.gregdoesdev.xyz
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9040"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - kailian-network
+
+networks:
+  kailian-network:
+    driver: bridge 

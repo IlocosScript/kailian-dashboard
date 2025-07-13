@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { TouristSpot, apiService, getImageUrl } from '@/lib/api';
+import { showToast } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -40,6 +41,8 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
     travelTime: '',
     isActive: true,
   });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [highlightsInput, setHighlightsInput] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -129,8 +132,46 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
     }
   }, [fullSpotData, touristSpot, open]);
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    const missingFields: string[] = [];
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+      missingFields.push('Name');
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+      missingFields.push('Description');
+    }
+
+    if (!formData.location.trim()) {
+      newErrors.location = 'Location is required';
+      missingFields.push('Location');
+    }
+
+    if (!formData.address.trim()) {
+      newErrors.address = 'Address is required';
+      missingFields.push('Address');
+    }
+
+    setErrors(newErrors);
+    
+    if (missingFields.length > 0) {
+      showToast.error(`Please fill in the required fields: ${missingFields.join(', ')}`);
+    }
+    
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsSubmitting(true);
     
     const highlights = highlightsInput
@@ -201,37 +242,70 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name" className="flex items-center">
+                Name <span className="text-red-500 ml-1">*</span>
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, name: e.target.value });
+                  if (errors.name) {
+                    setErrors({ ...errors, name: '' });
+                  }
+                }}
                 disabled={isLoadingFullData}
+                className={errors.name ? 'border-red-500' : ''}
                 required
               />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name}</p>
+              )}
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="location">Location *</Label>
+              <Label htmlFor="location" className="flex items-center">
+                Location <span className="text-red-500 ml-1">*</span>
+              </Label>
               <Input
                 id="location"
                 value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, location: e.target.value });
+                  if (errors.location) {
+                    setErrors({ ...errors, location: '' });
+                  }
+                }}
                 disabled={isLoadingFullData}
+                className={errors.location ? 'border-red-500' : ''}
                 required
               />
+              {errors.location && (
+                <p className="text-sm text-red-500">{errors.location}</p>
+              )}
             </div>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="address">Address *</Label>
+            <Label htmlFor="address" className="flex items-center">
+              Address <span className="text-red-500 ml-1">*</span>
+            </Label>
             <Input
               id="address"
               value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, address: e.target.value });
+                if (errors.address) {
+                  setErrors({ ...errors, address: '' });
+                }
+              }}
               disabled={isLoadingFullData}
+              className={errors.address ? 'border-red-500' : ''}
               required
             />
+            {errors.address && (
+              <p className="text-sm text-red-500">{errors.address}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -352,15 +426,26 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="description" className="flex items-center">
+              Description <span className="text-red-500 ml-1">*</span>
+            </Label>
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, description: e.target.value });
+                if (errors.description) {
+                  setErrors({ ...errors, description: '' });
+                }
+              }}
               rows={4}
               disabled={isLoadingFullData}
+              className={errors.description ? 'border-red-500' : ''}
               required
             />
+            {errors.description && (
+              <p className="text-sm text-red-500">{errors.description}</p>
+            )}
           </div>
           
           <div className="flex justify-end space-x-2 pt-4">

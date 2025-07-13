@@ -21,6 +21,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { getImageUrl } from '@/lib/api';
+import { showToast } from '@/lib/toast';
 import { Upload, X, Loader2 } from 'lucide-react';
 
 interface NewsFormProps {
@@ -48,6 +49,8 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
     tags: [] as string[],
     status: 'Draft',
   });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [tagInput, setTagInput] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -151,8 +154,46 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
     }
   }, [fullNewsData, news, open]);
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    const missingFields: string[] = [];
+
+    if (!formData.title.trim()) {
+      newErrors.title = 'Title is required';
+      missingFields.push('Title');
+    }
+
+    if (!formData.author.trim()) {
+      newErrors.author = 'Author is required';
+      missingFields.push('Author');
+    }
+
+    if (!formData.location.trim()) {
+      newErrors.location = 'Location is required';
+      missingFields.push('Location');
+    }
+
+    if (!formData.fullContent.trim()) {
+      newErrors.fullContent = 'Content is required';
+      missingFields.push('Content');
+    }
+
+    setErrors(newErrors);
+    
+    if (missingFields.length > 0) {
+      showToast.error(`Please fill in the required fields: ${missingFields.join(', ')}`);
+    }
+    
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsSubmitting(true);
     
     const tags = tagInput
@@ -230,25 +271,47 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="title" className="flex items-center">
+              Title <span className="text-red-500 ml-1">*</span>
+            </Label>
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, title: e.target.value });
+                if (errors.title) {
+                  setErrors({ ...errors, title: '' });
+                }
+              }}
               disabled={isLoadingFullData}
+              className={errors.title ? 'border-red-500' : ''}
               required
             />
+            {errors.title && (
+              <p className="text-sm text-red-500">{errors.title}</p>
+            )}
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="author">Author *</Label>
+            <Label htmlFor="author" className="flex items-center">
+              Author <span className="text-red-500 ml-1">*</span>
+            </Label>
             <Input
               id="author"
               value={formData.author}
-              onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, author: e.target.value });
+                if (errors.author) {
+                  setErrors({ ...errors, author: '' });
+                }
+              }}
               disabled={isLoadingFullData}
+              className={errors.author ? 'border-red-500' : ''}
               required
             />
+            {errors.author && (
+              <p className="text-sm text-red-500">{errors.author}</p>
+            )}
           </div>
         </div>
 
@@ -274,13 +337,25 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location" className="flex items-center">
+              Location <span className="text-red-500 ml-1">*</span>
+            </Label>
             <Input
               id="location"
               value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, location: e.target.value });
+                if (errors.location) {
+                  setErrors({ ...errors, location: '' });
+                }
+              }}
               disabled={isLoadingFullData}
+              className={errors.location ? 'border-red-500' : ''}
+              required
             />
+            {errors.location && (
+              <p className="text-sm text-red-500">{errors.location}</p>
+            )}
           </div>
         </div>
 
@@ -391,16 +466,27 @@ export default function NewsForm({ news, open, onOpenChange, onSubmit }: NewsFor
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="fullContent">Full Content *</Label>
+          <Label htmlFor="fullContent" className="flex items-center">
+            Full Content <span className="text-red-500 ml-1">*</span>
+          </Label>
           <Textarea
             id="fullContent"
             value={formData.fullContent}
-            onChange={(e) => setFormData({ ...formData, fullContent: e.target.value })}
+            onChange={(e) => {
+              setFormData({ ...formData, fullContent: e.target.value });
+              if (errors.fullContent) {
+                setErrors({ ...errors, fullContent: '' });
+              }
+            }}
             rows={8}
             placeholder="Full article content..."
             disabled={isLoadingFullData}
+            className={errors.fullContent ? 'border-red-500' : ''}
             required
           />
+          {errors.fullContent && (
+            <p className="text-sm text-red-500">{errors.fullContent}</p>
+          )}
         </div>
         
         <div className="flex justify-end space-x-2 pt-4">

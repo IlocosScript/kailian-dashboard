@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, RefreshCw } from 'lucide-react';
 import { mockPublicProjects, PublicProject } from '@/lib/mockData';
-import ProjectsTable from '@/components/admin/projects/projects-table';
-import ProjectForm from '@/components/admin/projects/project-form';
+// import ProjectsTable from '@/components/admin/projects/projects-table';
+// import ProjectForm from '@/components/admin/projects/project-form';
 import { showToast } from '@/lib/toast';
 
 export default function ProjectsPage() {
@@ -78,20 +78,18 @@ export default function ProjectsPage() {
           <CardTitle>All Projects ({projects.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <ProjectsTable
-            projects={projects}
-            onEdit={handleEditProject}
-            onDelete={handleDeleteProject}
-          />
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Projects table temporarily disabled for debugging</p>
+          </div>
         </CardContent>
       </Card>
 
-      <ProjectForm
+      {/* <ProjectForm
         project={selectedProject}
         open={formOpen}
         onOpenChange={setFormOpen}
         onSubmit={handleSubmitProject}
-      />
+      /> */}
     </div>
   );
 }

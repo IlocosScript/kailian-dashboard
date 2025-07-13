@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  kailian-dashboard-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: kailian-dashboard-dev
+    ports:
+      - "9040:9040"
+    environment:
+      - NODE_ENV=development
+      - PORT=9040
+      - HOSTNAME=0.0.0.0
+      - NEXT_TELEMETRY_DISABLED=1
+      # Development API URL
+      - NEXT_PUBLIC_API_URL=https://alisto.gregdoesdev.xyz
+      # Enable Next.js fast refresh
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      # Mount source code for hot reloading
+      - .:/app
+      # Preserve node_modules in container
+      - /app/node_modules
+      # Preserve .next build cache
+      - /app/.next
+    restart: unless-stopped
+    command: npm run dev
+    networks:
+      - kailian-dev-network
+
+networks:
+  kailian-dev-network:
+    driver: bridge 

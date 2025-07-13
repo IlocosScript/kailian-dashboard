@@ -1,4 +1,4 @@
-const BASE_URL = 'https://alisto.gregdoesdev.xyz';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://alisto.gregdoesdev.xyz';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -479,9 +479,6 @@ export interface TouristSpot {
   rating: number;
   travelTime?: string;
   viewCount: number;
-  coordinates?: string;
-  openingHours?: string;
-  entryFee?: string;
   highlights: string[];
   isActive?: boolean;
   createdAt?: string;

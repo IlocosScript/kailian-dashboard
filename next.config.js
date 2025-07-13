@@ -6,8 +6,17 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  experimental: {
-    appDir: true,
+  output: 'standalone',
+  // Development settings for Docker
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      // Enable polling for file changes in Docker
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
+    }
+    return config;
   },
 };
 
