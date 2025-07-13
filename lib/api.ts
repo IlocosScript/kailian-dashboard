@@ -22,15 +22,10 @@ class ApiService {
       
       if (!response.ok) {
         console.error(`HTTP error! status: ${response.status}`);
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (parseError) {
-          errorData = { 
-            message: `HTTP error! status: ${response.status}`,
-            success: false 
-          };
-        }
+        const errorData = await response.json().catch(() => ({ 
+          message: `HTTP error! status: ${response.status}`,
+          success: false 
+        }));
         console.error('API error response:', errorData);
         return {
           success: false,
@@ -63,15 +58,7 @@ class ApiService {
       });
       
       if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (parseError) {
-          errorData = { 
-            message: `HTTP error! status: ${response.status}`,
-            success: false 
-          };
-        }
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
@@ -103,15 +90,7 @@ class ApiService {
       });
       
       if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (parseError) {
-          errorData = { 
-            message: `HTTP error! status: ${response.status}`,
-            success: false 
-          };
-        }
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
@@ -238,15 +217,7 @@ class ApiService {
       });
       
       if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (parseError) {
-          errorData = { 
-            message: `HTTP error! status: ${response.status}`,
-            success: false 
-          };
-        }
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
@@ -282,15 +253,7 @@ class ApiService {
       });
       
       if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (parseError) {
-          errorData = { 
-            message: `HTTP error! status: ${response.status}`,
-            success: false 
-          };
-        }
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
@@ -421,15 +384,7 @@ class ApiService {
       });
       
       if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (parseError) {
-          errorData = { 
-            message: `HTTP error! status: ${response.status}`,
-            success: false 
-          };
-        }
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
@@ -465,15 +420,7 @@ class ApiService {
       });
       
       if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (parseError) {
-          errorData = { 
-            message: `HTTP error! status: ${response.status}`,
-            success: false 
-          };
-        }
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
