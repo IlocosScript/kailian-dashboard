@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { NewsArticle, NEWS_CATEGORIES, apiService } from '@/lib/api';
 import { NewsArticle, NEWS_CATEGORIES, ApiService } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
