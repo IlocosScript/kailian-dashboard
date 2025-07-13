@@ -77,7 +77,7 @@ export default function ViewNewsPage() {
       loading: false,
     });
   };
-  const formatDate = (dateString?: string) => {
+
   const handleUnpublish = async () => {
     setConfirmModal({
       open: true,
@@ -139,10 +139,10 @@ export default function ViewNewsPage() {
         variant: 'warning' as const,
         icon: 'unpublish' as const,
       };
-    } finally {
     }
   };
 
+  const formatDate = (dateString?: string) => {
     if (!dateString) return 'Not set';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
