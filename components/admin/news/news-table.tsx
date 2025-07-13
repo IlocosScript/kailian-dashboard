@@ -180,8 +180,22 @@ export default function NewsTable({ news, onEdit, onDelete, onPublish, onUnpubli
             {filteredNews.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
-                  <div className="font-medium">
-                    <TruncatedText text={item.title} maxLength={50} />
+                  <div className="flex items-center space-x-3">
+                    {item.imageUrl && (
+                      <img 
+                        src={getImageUrl(item.imageUrl, 'news')} 
+                        alt={item.title}
+                        className="w-10 h-10 rounded object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    )}
+                    <div>
+                      <div className="font-medium">
+                        <TruncatedText text={item.title} maxLength={50} />
+                      </div>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>

@@ -511,8 +511,30 @@ export const getImageUrl = (imageUrl?: string, type: 'news' | 'tourist-spots' = 
     return `${BASE_URL}${imageUrl}`;
   }
   
-  // Otherwise, construct the full URL
-  return `${BASE_URL}/uploads/${type}/${imageUrl}`;
+  // For mock data, return placeholder images from Pexels
+  const placeholderImages = {
+    news: [
+      'https://images.pexels.com/photos/518543/pexels-photo-518543.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://images.pexels.com/photos/1181298/pexels-photo-1181298.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://images.pexels.com/photos/1181316/pexels-photo-1181316.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://images.pexels.com/photos/1181354/pexels-photo-1181354.jpeg?auto=compress&cs=tinysrgb&w=800'
+    ],
+    'tourist-spots': [
+      'https://images.pexels.com/photos/1320684/pexels-photo-1320684.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://images.pexels.com/photos/1320686/pexels-photo-1320686.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://images.pexels.com/photos/1320687/pexels-photo-1320687.jpeg?auto=compress&cs=tinysrgb&w=800'
+    ]
+  };
+  
+  // Use hash of imageUrl to consistently return same placeholder for same imageUrl
+  const hash = imageUrl.split('').reduce((a, b) => {
+    a = ((a << 5) - a) + b.charCodeAt(0);
+    return a & a;
+  }, 0);
+  
+  const images = placeholderImages[type] || placeholderImages.news;
+  return images[Math.abs(hash) % images.length];
 };
 
 // News categories from API documentation

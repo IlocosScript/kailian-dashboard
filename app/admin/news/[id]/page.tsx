@@ -284,9 +284,9 @@ export default function ViewNewsPage() {
               <img 
                 src={getImageUrl(news.imageUrl, 'news')} 
                 alt={news.title}
-                className="w-full h-64 object-cover rounded-lg"
+                className="w-full h-80 object-cover rounded-lg shadow-md"
                 onError={(e) => {
-                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.src = 'https://images.pexels.com/photos/518543/pexels-photo-518543.jpeg?auto=compress&cs=tinysrgb&w=800';
                 }}
               />
             </div>
