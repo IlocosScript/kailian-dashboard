@@ -22,16 +22,12 @@ class ApiService {
       
       if (!response.ok) {
         console.error(`HTTP error! status: ${response.status}`);
-        const errorData = await response.json().catch(() => ({ 
-          message: `HTTP error! status: ${response.status}`,
-          success: false 
-        }));
-        console.error('API error response:', errorData);
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         return {
           success: false,
-          data: {} as T,
+          data: null as T,
           message: errorData.message || `HTTP error! status: ${response.status}`,
-          errors: errorData.errors
+          errors: errorData.errors || [`HTTP ${response.status}`]
         };
       }
       
@@ -42,9 +38,9 @@ class ApiService {
       console.error('API request failed:', error);
       return {
         success: false,
-        data: {} as T,
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        data: null as T,
+        message: error instanceof Error ? error.message : 'Network error occurred',
+        errors: ['Network request failed']
       };
     }
   }
@@ -62,9 +58,9 @@ class ApiService {
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
-          data: {} as T,
+          data: null as T,
           message: errorData.message || `HTTP error! status: ${response.status}`,
-          errors: errorData.errors
+          errors: errorData.errors || [`HTTP ${response.status}`]
         };
       }
       
@@ -75,9 +71,9 @@ class ApiService {
       console.error('API request failed:', error);
       return {
         success: false,
-        data: {} as T,
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        data: null as T,
+        message: error instanceof Error ? error.message : 'Network error occurred',
+        errors: ['Network request failed']
       };
     }
   }
@@ -94,9 +90,9 @@ class ApiService {
         console.error(`HTTP error! status: ${response.status}`, errorData);
         return {
           success: false,
-          data: {} as T,
+          data: null as T,
           message: errorData.message || `HTTP error! status: ${response.status}`,
-          errors: errorData.errors
+          errors: errorData.errors || [`HTTP ${response.status}`]
         };
       }
       
@@ -107,9 +103,9 @@ class ApiService {
       console.error('API request failed:', error);
       return {
         success: false,
-        data: {} as T,
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        data: null as T,
+        message: error instanceof Error ? error.message : 'Network error occurred',
+        errors: ['Network request failed']
       };
     }
   }
