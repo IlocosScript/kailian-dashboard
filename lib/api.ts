@@ -251,6 +251,123 @@ class ApiService {
   async getTouristSpotById(id: string): Promise<ApiResponse<TouristSpot>> {
     return this.request<TouristSpot>(`/api/touristspot/${id}`);
   }
+
+  async createTouristSpot(spotData: Partial<TouristSpot>, imageFile?: File): Promise<ApiResponse<TouristSpot>> {
+    const formData = new FormData();
+    
+    // Add required fields
+    if (spotData.name) formData.append('name', spotData.name);
+    if (spotData.description) formData.append('description', spotData.description);
+    if (spotData.location) formData.append('location', spotData.location);
+    formData.append('isActive', (spotData.isActive !== false).toString());
+    
+    // Add optional fields only if they have non-empty values
+    if (spotData.address && spotData.address.trim()) formData.append('address', spotData.address);
+    if (spotData.contactNumber && spotData.contactNumber.trim()) formData.append('contactNumber', spotData.contactNumber);
+    if (spotData.email && spotData.email.trim()) formData.append('email', spotData.email);
+    if (spotData.website && spotData.website.trim()) formData.append('website', spotData.website);
+    if (spotData.operatingHours && spotData.operatingHours.trim()) formData.append('operatingHours', spotData.operatingHours);
+    if (spotData.entranceFee && spotData.entranceFee.trim()) formData.append('entranceFee', spotData.entranceFee);
+    if (spotData.tags && spotData.tags.length > 0) {
+      formData.append('tags', spotData.tags.join(','));
+    }
+    
+    // Add image file if provided
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+    
+    return this.requestWithFormData<TouristSpot>('/api/touristspot/with-image', 'POST', formData);
+  }
+
+  async updateTouristSpot(id: number, spotData: Partial<TouristSpot>, imageFile?: File, clearExistingImage?: boolean): Promise<ApiResponse<TouristSpot>> {
+    const formData = new FormData();
+    
+    // Add required fields - these must always be present
+    formData.append('name', spotData.name || '');
+    formData.append('description', spotData.description || '');
+    formData.append('location', spotData.location || '');
+    formData.append('isActive', (spotData.isActive !== false).toString());
+    
+    // Add optional fields - always append to explicitly communicate their state
+    formData.append('address', spotData.address || '');
+    formData.append('contactNumber', spotData.contactNumber || '');
+    formData.append('email', spotData.email || '');
+    formData.append('website', spotData.website || '');
+    formData.append('operatingHours', spotData.operatingHours || '');
+    formData.append('entranceFee', spotData.entranceFee || '');
+    if (spotData.tags !== undefined) {
+      formData.append('tags', (spotData.tags || []).join(','));
+    }
+    
+    // Add image file if provided
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+    
+    // Add clearImage flag if image should be removed
+    if (clearExistingImage) {
+      formData.append('clearImage', 'true');
+    }
+    
+    return this.requestWithFormData<TouristSpot>(`/api/touristspot/${id}/with-image`, 'PUT', formData);
+  }
+
+  async deleteTouristSpot(id: number): Promise<ApiResponse<{}>> {
+    return this.deleteRequest<{}>(`/api/touristspot/${id}`);
+  }
+
+  async activateTouristSpot(id: number): Promise<ApiResponse<TouristSpot>> {
+    try {
+      console.log(`Making PATCH request to: ${BASE_URL}/api/touristspot/${id}/activate`);
+      const response = await fetch(`${BASE_URL}/api/touristspot/${id}/activate`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        console.error(`HTTP error! status: ${response.status}`, errorData);
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(`API response:`, data);
+      return data;
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
+  }
+
+  async deactivateTouristSpot(id: number): Promise<ApiResponse<TouristSpot>> {
+    try {
+      console.log(`Making PATCH request to: ${BASE_URL}/api/touristspot/${id}/deactivate`);
+      const response = await fetch(`${BASE_URL}/api/touristspot/${id}/deactivate`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        console.error(`HTTP error! status: ${response.status}`, errorData);
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(`API response:`, data);
+      return data;
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
+  }
 }
 
 // News Article interface based on API documentation
@@ -281,12 +398,13 @@ export interface TouristSpot {
   imageUrl: string;
   rating: number;
   location: string;
-  coordinates?: string;
   address: string;
-  openingHours?: string;
-  entryFee?: string;
-  highlights: string[];
-  travelTime?: string;
+  contactNumber?: string;
+  email?: string;
+  website?: string;
+  operatingHours?: string;
+  entranceFee?: string;
+  tags: string[];
   isActive: boolean;
   viewCount: number;
   createdAt: string;

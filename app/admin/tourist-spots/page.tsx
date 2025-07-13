@@ -7,6 +7,7 @@ import { Plus, RefreshCw } from 'lucide-react';
 import { apiService, TouristSpot } from '@/lib/api';
 import TouristSpotsTable from '@/components/admin/tourist-spots/tourist-spots-table';
 import TouristSpotForm from '@/components/admin/tourist-spots/tourist-spot-form';
+import { showToast } from '@/lib/toast';
 
 export default function TouristSpotsPage() {
   const [touristSpots, setTouristSpots] = useState<TouristSpot[]>([]);
@@ -49,42 +50,106 @@ export default function TouristSpotsPage() {
   };
 
   const handleDeleteSpot = (id: number) => {
-    // Note: This is client-side only since the API doesn't support DELETE
-    setTouristSpots(touristSpots.filter(spot => spot.id !== id));
+    // This function is now handled by the confirmation modal in TouristSpotsTable
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        const response = await apiService.deleteTouristSpot(id);
+        if (response.success) {
+          setTouristSpots(touristSpots.filter(spot => spot.id !== id));
+          resolve();
+        } else {
+          reject(new Error(response.message || 'Failed to delete tourist spot'));
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
   };
 
-  const handleSubmitSpot = (spotData: Partial<TouristSpot>) => {
-    // Note: This is client-side only since the API doesn't support POST/PUT
-    if (selectedSpot) {
-      // Update existing spot
-      setTouristSpots(touristSpots.map(spot => 
-        spot.id === selectedSpot.id 
-          ? { ...selectedSpot, ...spotData }
-          : spot
-      ));
-    } else {
-      // Add new spot (client-side only)
-      const newSpot: TouristSpot = {
-        id: Date.now(),
-        name: spotData.name || '',
-        description: spotData.description || '',
-        imageUrl: spotData.imageUrl || '',
-        rating: spotData.rating || 0,
-        location: spotData.location || '',
-        coordinates: spotData.coordinates,
-        address: spotData.address || '',
-        openingHours: spotData.openingHours,
-        entryFee: spotData.entryFee,
-        highlights: spotData.highlights || [],
-        travelTime: spotData.travelTime,
-        isActive: spotData.isActive !== false,
-        viewCount: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setTouristSpots([newSpot, ...touristSpots]);
+  const handleActivateSpot = async (id: number) => {
+    // This function is now handled by the confirmation modal in TouristSpotsTable
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        const response = await apiService.activateTouristSpot(id);
+        if (response.success) {
+          setTouristSpots(touristSpots.map(spot => 
+            spot.id === id 
+              ? { ...spot, isActive: true }
+              : spot
+          ));
+          resolve();
+        } else {
+          reject(new Error(response.message || 'Failed to activate tourist spot'));
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
+  const handleDeactivateSpot = async (id: number) => {
+    // This function is now handled by the confirmation modal in TouristSpotsTable
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        const response = await apiService.deactivateTouristSpot(id);
+        if (response.success) {
+          setTouristSpots(touristSpots.map(spot => 
+            spot.id === id 
+              ? { ...spot, isActive: false }
+              : spot
+          ));
+          resolve();
+        } else {
+          reject(new Error(response.message || 'Failed to deactivate tourist spot'));
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
+  const handleSubmitSpot = async (spotData: Partial<TouristSpot>, imageFile?: File, clearExistingImage?: boolean) => {
+    try {
+      let response;
+      
+      if (selectedSpot) {
+        // Update existing spot
+        response = await apiService.updateTouristSpot(selectedSpot.id, spotData, imageFile, clearExistingImage);
+        if (response.success) {
+          setTouristSpots(touristSpots.map(spot => 
+            spot.id === selectedSpot.id 
+              ? response.data
+              : spot
+          ));
+        }
+      } else {
+        // Create new spot
+        response = await apiService.createTouristSpot(spotData, imageFile);
+        if (response.success) {
+          setTouristSpots([response.data, ...touristSpots]);
+        }
+      }
+      
+      if (response.success) {
+        setFormOpen(false);
+        if (selectedSpot) {
+          showToast.success('Tourist spot updated successfully');
+        } else {
+          showToast.success('Tourist spot created successfully');
+        }
+      } else {
+        const action = selectedSpot ? 'update' : 'create';
+        showToast.error(`Failed to ${action} tourist spot`, {
+          description: response.message || 'Please try again or contact support if the problem persists.',
+        });
+      }
+    } catch (err) {
+      const action = selectedSpot ? 'update' : 'create';
+      showToast.error(`Failed to ${action} tourist spot`, {
+        description: 'Please try again or contact support if the problem persists.',
+      });
+      console.error('Error saving tourist spot:', err);
     }
-    setFormOpen(false);
   };
 
   if (error) {
@@ -161,6 +226,8 @@ export default function TouristSpotsPage() {
               touristSpots={touristSpots}
               onEdit={handleEditSpot}
               onDelete={handleDeleteSpot}
+              onActivate={handleActivateSpot}
+              onDeactivate={handleDeactivateSpot}
             />
           )}
         </CardContent>

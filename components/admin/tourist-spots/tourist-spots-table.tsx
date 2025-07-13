@@ -19,16 +19,32 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Search, Edit, Trash2, Star, Eye, MapPin } from 'lucide-react';
+import { MoreHorizontal, Search, Edit, Trash2, Star, Eye, MapPin, CheckCircle, XCircle } from 'lucide-react';
+import { TruncatedText } from '@/components/ui/truncated-text';
+import ConfirmationModal from '@/components/ui/confirmation-modal';
+import { showToast } from '@/lib/toast';
 
 interface TouristSpotsTableProps {
   touristSpots: TouristSpot[];
   onEdit: (spot: TouristSpot) => void;
   onDelete: (id: number) => void;
+  onActivate: (id: number) => void;
+  onDeactivate: (id: number) => void;
 }
 
-export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: TouristSpotsTableProps) {
+export default function TouristSpotsTable({ touristSpots, onEdit, onDelete, onActivate, onDeactivate }: TouristSpotsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    type: 'delete' | 'activate' | 'deactivate';
+    item: TouristSpot | null;
+    loading: boolean;
+  }>({
+    open: false,
+    type: 'delete',
+    item: null,
+    loading: false,
+  });
 
   const filteredSpots = touristSpots.filter(spot =>
     spot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -44,11 +60,81 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: To
     });
   };
 
-  const getRatingColor = (rating: number) => {
-    if (rating >= 4.5) return 'text-green-600';
-    if (rating >= 4.0) return 'text-blue-600';
-    if (rating >= 3.5) return 'text-yellow-600';
-    return 'text-red-600';
+  const handleConfirmAction = async () => {
+    if (!confirmModal.item) return;
+
+    setConfirmModal(prev => ({ ...prev, loading: true }));
+
+    try {
+      switch (confirmModal.type) {
+        case 'delete':
+          await onDelete(confirmModal.item.id);
+          showToast.success('Tourist spot deleted successfully');
+          break;
+        case 'activate':
+          await onActivate(confirmModal.item.id);
+          showToast.success('Tourist spot activated successfully');
+          break;
+        case 'deactivate':
+          await onDeactivate(confirmModal.item.id);
+          showToast.success('Tourist spot deactivated successfully');
+          break;
+      }
+      setConfirmModal({ open: false, type: 'delete', item: null, loading: false });
+    } catch (error) {
+      showToast.error(`Failed to ${confirmModal.type} tourist spot`, {
+        description: 'Please try again or contact support if the problem persists.',
+      });
+      setConfirmModal(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const openConfirmModal = (type: 'delete' | 'activate' | 'deactivate', item: TouristSpot) => {
+    setConfirmModal({
+      open: true,
+      type,
+      item,
+      loading: false,
+    });
+  };
+
+  const getModalConfig = () => {
+    const { type, item } = confirmModal;
+    
+    switch (type) {
+      case 'delete':
+        return {
+          title: 'Delete Tourist Spot',
+          description: `Are you sure you want to delete "${item?.name}"? This action cannot be undone.`,
+          confirmText: 'Delete',
+          variant: 'destructive' as const,
+          icon: 'delete' as const,
+        };
+      case 'activate':
+        return {
+          title: 'Activate Tourist Spot',
+          description: `Are you sure you want to activate "${item?.name}"? This will make it visible to all users.`,
+          confirmText: 'Activate',
+          variant: 'success' as const,
+          icon: 'activate' as const,
+        };
+      case 'deactivate':
+        return {
+          title: 'Deactivate Tourist Spot',
+          description: `Are you sure you want to deactivate "${item?.name}"? This will make it invisible to public users.`,
+          confirmText: 'Deactivate',
+          variant: 'warning' as const,
+          icon: 'deactivate' as const,
+        };
+      default:
+        return {
+          title: 'Confirm Action',
+          description: 'Are you sure you want to proceed?',
+          confirmText: 'Confirm',
+          variant: 'default' as const,
+          icon: 'warning' as const,
+        };
+    }
   };
 
   return (
@@ -71,7 +157,7 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: To
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Location</TableHead>
-              <TableHead>Rating</TableHead>
+              <TableHead>Contact</TableHead>
               <TableHead>Views</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created</TableHead>
@@ -94,8 +180,12 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: To
                       />
                     )}
                     <div>
-                      <p className="font-medium line-clamp-1">{spot.name}</p>
-                      <p className="text-sm text-muted-foreground line-clamp-1">{spot.description}</p>
+                      <div className="font-medium">
+                        <TruncatedText text={spot.name} maxLength={30} />
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <TruncatedText text={spot.description} maxLength={40} />
+                      </div>
                     </div>
                   </div>
                 </TableCell>
@@ -103,17 +193,29 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: To
                   <div className="flex items-center space-x-1">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm">{spot.location}</p>
+                      <div className="text-sm">
+                        <TruncatedText text={spot.location} maxLength={20} />
+                      </div>
                       {spot.address && (
-                        <p className="text-xs text-muted-foreground line-clamp-1">{spot.address}</p>
+                        <div className="text-xs text-muted-foreground">
+                          <TruncatedText text={spot.address} maxLength={25} />
+                        </div>
                       )}
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className={`flex items-center space-x-1 ${getRatingColor(spot.rating)}`}>
-                    <Star className="h-4 w-4 fill-current" />
-                    <span className="font-medium">{spot.rating}</span>
+                  <div className="text-sm">
+                    {spot.contactNumber && (
+                      <div>
+                        <TruncatedText text={spot.contactNumber} maxLength={15} />
+                      </div>
+                    )}
+                    {spot.email && (
+                      <div className="text-xs text-muted-foreground">
+                        <TruncatedText text={spot.email} maxLength={20} />
+                      </div>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -136,12 +238,31 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: To
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => window.location.href = `/admin/tourist-spots/${spot.id}`}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        View
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onEdit(spot)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
+                      {!spot.isActive && (
+                        <DropdownMenuItem onClick={() => openConfirmModal('activate', spot)}>
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Activate
+                        </DropdownMenuItem>
+                      )}
+                      {spot.isActive && (
+                        <DropdownMenuItem 
+                          onClick={() => openConfirmModal('deactivate', spot)}
+                          className="text-orange-600"
+                        >
+                          <XCircle className="mr-2 h-4 w-4" />
+                          Deactivate
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem 
-                        onClick={() => onDelete(spot.id)}
+                        onClick={() => openConfirmModal('delete', spot)}
                         className="text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
@@ -162,6 +283,14 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete }: To
           </TableBody>
         </Table>
       </div>
+
+      <ConfirmationModal
+        open={confirmModal.open}
+        onOpenChange={(open) => setConfirmModal(prev => ({ ...prev, open }))}
+        onConfirm={handleConfirmAction}
+        loading={confirmModal.loading}
+        {...getModalConfig()}
+      />
     </div>
   );
 }
