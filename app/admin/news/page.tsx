@@ -87,6 +87,25 @@ export default function NewsPage() {
     }
   };
 
+  const handleUnpublishNews = async (id: number) => {
+    try {
+      const response = await apiService.unpublishNews(id);
+      if (response.success) {
+        // Update the news item in the list with the new status
+        setNews(news.map(item => 
+          item.id === id 
+            ? { ...item, status: 'Draft', publishedDate: '', publishedTime: '' }
+            : item
+        ));
+      } else {
+        setError(response.message || 'Failed to unpublish news');
+      }
+    } catch (err) {
+      setError('Failed to unpublish news');
+      console.error('Error unpublishing news:', err);
+    }
+  };
+
   const handleSubmitNews = async (newsData: Partial<NewsArticle>, imageFile?: File) => {
     try {
       let response;
@@ -195,6 +214,7 @@ export default function NewsPage() {
               onEdit={handleEditNews}
               onDelete={handleDeleteNews}
               onPublish={handlePublishNews}
+              onUnpublish={handleUnpublishNews}
             />
           )}
         </CardContent>

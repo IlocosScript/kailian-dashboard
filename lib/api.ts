@@ -193,6 +193,32 @@ class ApiService {
     }
   }
 
+  async unpublishNews(id: number): Promise<ApiResponse<NewsArticle>> {
+    try {
+      console.log(`Making PATCH request to: ${BASE_URL}/api/news/${id}/unpublish`);
+      const response = await fetch(`${BASE_URL}/api/news/${id}/unpublish`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        console.error(`HTTP error! status: ${response.status}`, errorData);
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(`API response:`, data);
+      return data;
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
+  }
+
   async getFeaturedNews(): Promise<ApiResponse<NewsArticle[]>> {
     return this.request<NewsArticle[]>('/api/news/featured');
   }

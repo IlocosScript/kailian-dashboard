@@ -18,7 +18,8 @@ import {
   Star,
   TrendingUp,
   Tag,
-  Send
+  Send,
+  Archive
 } from 'lucide-react';
 import { apiService, NewsArticle, getImageUrl } from '@/lib/api';
 
@@ -29,6 +30,7 @@ export default function ViewNewsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [unpublishing, setUnpublishing] = useState(false);
 
   const newsId = params.id as string;
 
@@ -78,6 +80,31 @@ export default function ViewNewsPage() {
     }
   };
   const formatDate = (dateString?: string) => {
+  const handleUnpublish = async () => {
+    if (!news) return;
+    
+    if (!confirm('Are you sure you want to unpublish this article? This will make it invisible to public users.')) {
+      return;
+    }
+    
+    try {
+      setUnpublishing(true);
+      const response = await apiService.unpublishNews(news.id);
+      
+      if (response.success) {
+        // Update the news status locally and clear published date/time
+        setNews({ ...news, status: 'Draft', publishedDate: '', publishedTime: '' });
+      } else {
+        setError(response.message || 'Failed to unpublish news');
+      }
+    } catch (err) {
+      setError('Failed to unpublish news');
+      console.error('Error unpublishing news:', err);
+    } finally {
+      setUnpublishing(false);
+    }
+  };
+
     if (!dateString) return 'Not set';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -164,6 +191,17 @@ export default function ViewNewsPage() {
             >
               <Send className="mr-2 h-4 w-4" />
               {publishing ? 'Publishing...' : 'Publish'}
+            </Button>
+          )}
+          {news.status === 'Published' && (
+            <Button 
+              onClick={handleUnpublish} 
+              disabled={unpublishing}
+              variant="outline"
+              className="border-orange-500 text-orange-600 hover:bg-orange-50"
+            >
+              <Archive className="mr-2 h-4 w-4" />
+              {unpublishing ? 'Unpublishing...' : 'Unpublish'}
             </Button>
           )}
           <Button onClick={() => router.push(`/admin/news/${newsId}/edit`)}>

@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Search, Edit, Trash2, Eye, Star, TrendingUp } from 'lucide-react';
-import { Send } from 'lucide-react';
+import { Send, Archive } from 'lucide-react';
 import { TruncatedText } from '@/components/ui/truncated-text';
 
 interface NewsTableProps {
@@ -28,9 +28,10 @@ interface NewsTableProps {
   onEdit: (news: NewsArticle) => void;
   onDelete: (id: number) => void;
   onPublish: (id: number) => void;
+  onUnpublish: (id: number) => void;
 }
 
-export default function NewsTable({ news, onEdit, onDelete, onPublish }: NewsTableProps) {
+export default function NewsTable({ news, onEdit, onDelete, onPublish, onUnpublish }: NewsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredNews = news.filter(item =>
@@ -131,6 +132,19 @@ export default function NewsTable({ news, onEdit, onDelete, onPublish }: NewsTab
                         <DropdownMenuItem onClick={() => onPublish(item.id)}>
                           <Send className="mr-2 h-4 w-4" />
                           Publish
+                        </DropdownMenuItem>
+                      )}
+                      {item.status === 'Published' && (
+                        <DropdownMenuItem 
+                          onClick={() => {
+                            if (confirm('Are you sure you want to unpublish this article? This will make it invisible to public users.')) {
+                              onUnpublish(item.id);
+                            }
+                          }}
+                          className="text-orange-600"
+                        >
+                          <Archive className="mr-2 h-4 w-4" />
+                          Unpublish
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem 
