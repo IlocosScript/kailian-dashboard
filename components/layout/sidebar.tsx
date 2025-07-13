@@ -36,9 +36,10 @@ export default function Sidebar() {
     <div className={cn(
       "relative border-r bg-background transition-all duration-300",
       isExpanded ? "w-64" : "w-16"
+    )}
     onMouseEnter={() => setIsHovered(true)}
     onMouseLeave={() => setIsHovered(false)}
-    )}>
+    >
       <div className="flex h-16 items-center border-b px-4">
         <Button
           variant="ghost"
