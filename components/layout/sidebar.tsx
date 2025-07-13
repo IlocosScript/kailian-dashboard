@@ -29,11 +29,15 @@ const navigation = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
 
+  const isExpanded = !collapsed || isHovered;
   return (
     <div className={cn(
       "relative border-r bg-background transition-all duration-300",
-      collapsed ? "w-16" : "w-64"
+      isExpanded ? "w-64" : "w-16"
+    onMouseEnter={() => setIsHovered(true)}
+    onMouseLeave={() => setIsHovered(false)}
     )}>
       <div className="flex h-16 items-center border-b px-4">
         <Button
@@ -44,7 +48,7 @@ export default function Sidebar() {
         >
           <Menu className="h-4 w-4" />
         </Button>
-        {!collapsed && (
+        {isExpanded && (
           <h2 className="text-lg font-semibold">Kailyan Dashboard</h2>
         )}
       </div>
@@ -58,11 +62,11 @@ export default function Sidebar() {
                   variant={isActive ? 'secondary' : 'ghost'}
                   className={cn(
                     'w-full justify-start transition-colors',
-                    collapsed ? 'px-2' : 'px-4'
+                    isExpanded ? 'px-4' : 'px-2'
                   )}
                 >
-                  <item.icon className={cn('h-4 w-4', !collapsed && 'mr-2')} />
-                  {!collapsed && item.name}
+                  <item.icon className={cn('h-4 w-4', isExpanded && 'mr-2')} />
+                  {isExpanded && item.name}
                 </Button>
               </Link>
             );
