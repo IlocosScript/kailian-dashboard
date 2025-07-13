@@ -95,7 +95,8 @@ export default function ViewNewsPage() {
       if (confirmModal.type === 'publish') {
         const response = await apiService.publishNews(news.id);
         if (response.success) {
-          setNews({ ...news, status: 'Published' });
+          // Refresh the entire news data from API
+          await fetchNews();
           showToast.success('News article published successfully');
         } else {
           throw new Error(response.message || 'Failed to publish news');
@@ -103,7 +104,8 @@ export default function ViewNewsPage() {
       } else {
         const response = await apiService.unpublishNews(news.id);
         if (response.success) {
-          setNews({ ...news, status: 'Draft', publishedDate: '', publishedTime: '' });
+          // Refresh the entire news data from API
+          await fetchNews();
           showToast.success('News article unpublished successfully');
         } else {
           throw new Error(response.message || 'Failed to unpublish news');
@@ -117,6 +119,17 @@ export default function ViewNewsPage() {
       });
       setConfirmModal(prev => ({ ...prev, loading: false }));
       console.error(`Error ${action}ing news:`, err);
+    }
+  };
+
+  const fetchNews = async () => {
+    try {
+      const response = await apiService.getNewsById(newsId);
+      if (response.success) {
+        setNews(response.data);
+      }
+    } catch (err) {
+      console.error('Error refreshing news data:', err);
     }
   };
 
