@@ -230,6 +230,7 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               disabled={isLoadingFullData}
+             required
             />
           </div>
 
