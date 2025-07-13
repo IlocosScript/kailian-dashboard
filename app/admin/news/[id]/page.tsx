@@ -148,9 +148,10 @@ export default function ViewNewsPage() {
                 <Badge variant="outline">{news.category}</Badge>
               </div>
               <CardTitle className="text-3xl">{news.title}</CardTitle>
-              {news.summary && (
-                <p className="text-lg text-muted-foreground">{news.summary}</p>
-              )}
+              <div className="flex items-center space-x-2 text-muted-foreground">
+                <User className="h-4 w-4" />
+                <span>By {news.author}</span>
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -174,11 +175,6 @@ export default function ViewNewsPage() {
               <div className="space-y-3">
                 <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">Publication</h4>
                 <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <User className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">By</span>
-                    <span className="font-medium text-gray-900">{news.author}</span>
-                  </div>
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4 text-gray-500" />
                     <span className="text-sm text-gray-900">{formatDate(news.publishedDate)}</span>
@@ -224,8 +220,24 @@ export default function ViewNewsPage() {
             </div>
           </div>
 
+          {/* Full Content Section */}
+          {news.fullContent && (
+            <div className="space-y-4">
+              <Separator />
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Article Content</h3>
+                <div className="prose max-w-none">
+                  <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {news.fullContent}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {news.tags && news.tags.length > 0 && (
             <div className="space-y-3">
+              <Separator />
               <div className="flex items-center space-x-2">
                 <Tag className="h-4 w-4 text-muted-foreground" />
                 <h4 className="font-semibold text-gray-900">Tags</h4>
