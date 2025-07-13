@@ -168,53 +168,67 @@ export default function ViewNewsPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="flex items-center space-x-2 text-sm">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Author:</span>
-              <span>{news.author}</span>
-            </div>
-            
-            <div className="flex items-center space-x-2 text-sm">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Date:</span>
-              <span>{formatDate(news.publishedDate)}</span>
-            </div>
-            
-            <div className="flex items-center space-x-2 text-sm">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Time:</span>
-              <span>{formatTime(news.publishedTime)}</span>
-            </div>
-            
-            <div className="flex items-center space-x-2 text-sm">
-              <Eye className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Views:</span>
-              <span>{news.viewCount.toLocaleString()}</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center space-x-2 text-sm">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Location:</span>
-              <span>{news.location}</span>
-            </div>
-            
-            {news.expectedAttendees && (
-              <div className="flex items-center space-x-2 text-sm">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Expected Attendees:</span>
-                <span>{news.expectedAttendees}</span>
+          <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Author & Publication Info */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">Publication</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <User className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">By</span>
+                    <span className="font-medium text-gray-900">{news.author}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-900">{formatDate(news.publishedDate)}</span>
+                    {news.publishedTime && (
+                      <>
+                        <Clock className="h-4 w-4 text-gray-500 ml-2" />
+                        <span className="text-sm text-gray-900">{formatTime(news.publishedTime)}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
-            )}
+
+              {/* Location & Event Info */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">Event Details</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-900">{news.location}</span>
+                  </div>
+                  {news.expectedAttendees && (
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-4 w-4 text-gray-500" />
+                      <span className="text-sm text-gray-600">Expected:</span>
+                      <span className="text-sm text-gray-900">{news.expectedAttendees}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Stats & Engagement */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">Engagement</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Eye className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">Views:</span>
+                    <span className="font-medium text-gray-900">{news.viewCount.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {news.tags && news.tags.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2 text-sm">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
                 <Tag className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Tags:</span>
+                <h4 className="font-semibold text-gray-900">Tags</h4>
               </div>
               <div className="flex flex-wrap gap-2">
                 {news.tags.map((tag, index) => (
@@ -226,16 +240,6 @@ export default function ViewNewsPage() {
             </div>
           )}
 
-          <Separator />
-
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold">Full Content</h3>
-            <div className="prose max-w-none">
-              <p className="text-base leading-relaxed whitespace-pre-wrap">
-                {news.fullContent}
-              </p>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
