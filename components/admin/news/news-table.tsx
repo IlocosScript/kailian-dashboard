@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Search, Edit, Trash2, Eye, Star, TrendingUp } from 'lucide-react';
 import { Send } from 'lucide-react';
+import { TruncatedText } from '@/components/ui/truncated-text';
 
 interface NewsTableProps {
   news: NewsArticle[];
@@ -100,14 +101,20 @@ export default function NewsTable({ news, onEdit, onDelete, onPublish }: NewsTab
                       />
                     )}
                     <div>
-                      <p className="font-medium line-clamp-1">{item.title}</p>
+                      <p className="font-medium">
+                        <TruncatedText text={item.title} maxLength={40} />
+                      </p>
                       {item.summary && (
-                        <p className="text-sm text-muted-foreground line-clamp-1">{item.summary}</p>
+                        <p className="text-sm text-muted-foreground">
+                          <TruncatedText text={item.summary} maxLength={60} />
+                        </p>
                       )}
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>{item.author}</TableCell>
+                <TableCell>
+                  <TruncatedText text={item.author} maxLength={20} />
+                </TableCell>
                 <TableCell>
                   <Badge variant="outline">{item.category}</Badge>
                 </TableCell>
