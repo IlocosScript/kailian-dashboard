@@ -144,14 +144,15 @@ class ApiService {
     formData.append('location', newsData.location || '');
     formData.append('category', newsData.category || 'Festival');
     formData.append('author', newsData.author || '');
+    formData.append('status', newsData.status || 'Draft');
     formData.append('isFeatured', (newsData.isFeatured || false).toString());
     formData.append('isTrending', (newsData.isTrending || false).toString());
     
-    // Add optional fields only if they have non-empty values
-    if (newsData.summary !== undefined && newsData.summary.trim()) formData.append('summary', newsData.summary);
-    if (newsData.publishedDate !== undefined && newsData.publishedDate.trim()) formData.append('publishedDate', newsData.publishedDate);
-    if (newsData.publishedTime !== undefined && newsData.publishedTime.trim()) formData.append('publishedTime', newsData.publishedTime);
-    if (newsData.expectedAttendees !== undefined && newsData.expectedAttendees.trim()) formData.append('expectedAttendees', newsData.expectedAttendees);
+    // Add optional fields - always append to explicitly communicate their state
+    formData.append('summary', newsData.summary || '');
+    formData.append('publishedDate', newsData.publishedDate || '');
+    formData.append('publishedTime', newsData.publishedTime || '');
+    formData.append('expectedAttendees', newsData.expectedAttendees || '');
     if (newsData.tags !== undefined) {
       formData.append('tags', (newsData.tags || []).join(','));
     }
