@@ -93,13 +93,13 @@ export default function TouristSpotForm({ touristSpot, open, onOpenChange, onSub
         contactNumber: spotToUse.contactNumber || '',
         email: spotToUse.email || '',
         website: spotToUse.website || '',
-        operatingHours: spotToUse.operatingHours || '',
-        entranceFee: spotToUse.entranceFee || '',
+        operatingHours: spotToUse.operatingHours || spotToUse.openingHours || '',
+        entranceFee: spotToUse.entranceFee || spotToUse.entryFee || '',
         isActive: spotToUse.isActive !== false,
-        tags: spotToUse.tags || [],
+        tags: spotToUse.tags || spotToUse.highlights || [],
       });
       
-      setTagsInput(spotToUse.tags?.join(', ') || '');
+      setTagsInput((spotToUse.tags || spotToUse.highlights || []).join(', ') || '');
       // Set image preview with full URL for existing spots
       if (spotToUse.imageUrl) {
         setImagePreview(getImageUrl(spotToUse.imageUrl, 'tourist-spots'));

@@ -315,22 +315,34 @@ export default function ViewTouristSpotPage() {
               <div className="space-y-3">
                 <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">Operating Details</h4>
                 <div className="space-y-2">
-                  {spot.operatingHours && (
+                  {(spot.operatingHours || spot.openingHours) && (
                     <div className="flex items-center space-x-2">
                       <Clock className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm text-gray-900">{spot.operatingHours}</span>
+                      <span className="text-sm text-gray-900">{spot.operatingHours || spot.openingHours}</span>
                     </div>
                   )}
-                  {spot.entranceFee && (
+                  {(spot.entranceFee || spot.entryFee) && (
                     <div className="flex items-center space-x-2">
                       <DollarSign className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm text-gray-900">{spot.entranceFee}</span>
+                      <span className="text-sm text-gray-900">{spot.entranceFee || spot.entryFee}</span>
                     </div>
                   )}
                   {spot.address && (
                     <div className="flex items-center space-x-2">
                       <MapPin className="h-4 w-4 text-gray-500" />
                       <span className="text-sm text-gray-900">{spot.address}</span>
+                    </div>
+                  )}
+                  {spot.coordinates && (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-gray-600">Coordinates:</span>
+                      <span className="text-sm text-gray-900">{spot.coordinates}</span>
+                    </div>
+                  )}
+                  {spot.travelTime && (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-gray-600">Travel Time:</span>
+                      <span className="text-sm text-gray-900">{spot.travelTime}</span>
                     </div>
                   )}
                 </div>
@@ -346,13 +358,21 @@ export default function ViewTouristSpotPage() {
                     <span className="font-medium text-gray-900">{spot.viewCount.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-600">Rating:</span>
+                    <span className="font-medium text-gray-900">{spot.rating}★</span>
+                  </div>
+                  {spot.createdAt && (
+                    <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-600">Created:</span>
                     <span className="text-sm text-gray-900">{formatDate(spot.createdAt)}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
+                    </div>
+                  )}
+                  {spot.updatedAt && (
+                    <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-600">Updated:</span>
                     <span className="text-sm text-gray-900">{formatDate(spot.updatedAt)}</span>
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -371,15 +391,15 @@ export default function ViewTouristSpotPage() {
             </div>
           )}
 
-          {spot.tags && spot.tags.length > 0 && (
+          {(spot.tags || spot.highlights) && (spot.tags || spot.highlights).length > 0 && (
             <div className="space-y-3">
               <Separator />
               <div className="flex items-center space-x-2">
                 <Tag className="h-4 w-4 text-muted-foreground" />
-                <h4 className="font-semibold text-gray-900">Tags</h4>
+                <h4 className="font-semibold text-gray-900">{spot.highlights ? 'Highlights' : 'Tags'}</h4>
               </div>
               <div className="flex flex-wrap gap-2">
-                {spot.tags.map((tag, index) => (
+                {(spot.tags || spot.highlights).map((tag, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
                     {tag}
                   </Badge>

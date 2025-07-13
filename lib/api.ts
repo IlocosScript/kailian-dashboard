@@ -471,19 +471,25 @@ export interface TouristSpot {
   name: string;
   description: string;
   imageUrl: string;
-  rating: number;
   location: string;
   address: string;
+  coordinates?: string;
+  openingHours?: string;
+  entryFee?: string;
+  rating: number;
+  travelTime?: string;
+  viewCount: number;
+  highlights: string[];
+  // Legacy fields for backward compatibility
   contactNumber?: string;
   email?: string;
   website?: string;
   operatingHours?: string;
   entranceFee?: string;
-  tags: string[];
-  isActive: boolean;
-  viewCount: number;
-  createdAt: string;
-  updatedAt: string;
+  tags?: string[];
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Export singleton instance

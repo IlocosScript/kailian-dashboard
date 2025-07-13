@@ -216,6 +216,11 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete, onAc
                         <TruncatedText text={spot.email} maxLength={20} />
                       </div>
                     )}
+                    {!spot.contactNumber && !spot.email && (
+                      <div className="text-xs text-muted-foreground">
+                        No contact info
+                      </div>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -225,11 +230,11 @@ export default function TouristSpotsTable({ touristSpots, onEdit, onDelete, onAc
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={spot.isActive ? 'default' : 'secondary'}>
-                    {spot.isActive ? 'Active' : 'Inactive'}
+                  <Badge variant={spot.isActive !== false ? 'default' : 'secondary'}>
+                    {spot.isActive !== false ? 'Active' : 'Inactive'}
                   </Badge>
                 </TableCell>
-                <TableCell>{formatDate(spot.createdAt)}</TableCell>
+                <TableCell>{spot.createdAt ? formatDate(spot.createdAt) : 'Unknown'}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
